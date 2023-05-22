@@ -63,8 +63,8 @@ annotations_list = list(split(mylist, chunk_size))
 
 #create list of fours using length of recording
 duration = split_wav.duration
-segments = round(3595/3)
-fours = torch.linspace(4, duration,segments)
+segments = round(duration/3)
+fours = torch.linspace(4, duration, segments)
 print(fours)
 
 #create a corresponding dummy zeros tensor for the entire sound file
