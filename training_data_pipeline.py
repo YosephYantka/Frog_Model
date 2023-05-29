@@ -9,8 +9,8 @@ from pydub import AudioSegment
 import math
 
 #set file and folder(s)
-chunk_folder = '/home/nottom/Documents/LinuxProject/BAR4_slices_1'
-wav_file = 'BAR4_20210709_234000_Sunrise [-5.9183 142.6952].wav'
+chunk_folder = '/home/nottom/Documents/LinuxProject/BAR4_slices'
+wav_file = 'BAR4_20210709_234000.wav'
 #^this file must be in the chunk_folder
 filename = 'BAR4_20210709_234000'
 audacity_labels = '/home/nottom/Documents/LinuxProject/labels.txt'
@@ -82,7 +82,7 @@ for t0,t1,id,f0,f1 in annotations_list:
 x = 0
 y = 4
 for chunk in annotation:
-    name = 'Chunk_' + str(x) + '_' + str(y) + '_' + filename
+    name = str(x) + '_' + str(y) + '_' + filename
     encoding = chunk.tolist()
     encoding = [int(x) for x in encoding]
     encoding_string = f'{encoding[0]}, {encoding[1]}, {encoding[2]}, {encoding[3]}'

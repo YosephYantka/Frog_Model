@@ -3,12 +3,14 @@ import torchaudio
 import torchaudio.functional as F
 import torchaudio.transforms as T
 import librosa
+import matplotlib
 import matplotlib.pyplot as plt
 from torchaudio.utils import download_asset
 import numpy
-
+matplotlib.use('qt5agg')
 torch.random.manual_seed(0)
-SAMPLE_SPEECH = '/home/nottom/Documents/LinuxProject/BAR4_slices/318_322_BAR4_20210709_234000_Sunrise [-5.9183 142.6952].wav'
+SAMPLE_SPEECH = '/home/nottom/Documents/LinuxProject/BAR4_slices/0_4_BAR4_20210709_234000.wav'
+filename = "0_4_BAR4_20210709_234000.wav"
 #SAMPLE_SPEECH = "/home/nottom/Documents/LinuxProject/example.wav"
 
 def plot_waveform(waveform, sr, title="Waveform"):
@@ -31,6 +33,7 @@ def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
     im = axs.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto")
     fig.colorbar(im, ax=axs)
     plt.show(block=True)
+    plt.savefig("/home/nottom/Documents/LinuxProject/misc/spec1.png")
 
 def plot_fbank(fbank, title=None):
     fig, axs = plt.subplots(1, 1)
@@ -55,6 +58,9 @@ spectrogram = T.Spectrogram(
     power=2.0,)
 # Perform transform
 spec = spectrogram(SPEECH_WAVEFORM)
-plot_spectrogram(spec[0], title="Spectrogram_" + str(SAMPLE_SPEECH[48:52]))
+plot_spectrogram(spec[0], title="Spectrogram " + str(filename))
+#plt.savefig("/home/nottom/Documents/LinuxProject/misc/spec1.png")
 
 
+import matplotlib
+matplotlib.get_backend()
