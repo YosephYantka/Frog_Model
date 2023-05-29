@@ -8,8 +8,8 @@ from torchaudio.utils import download_asset
 import numpy
 
 torch.random.manual_seed(0)
-audio_file = '/home/nottom/Documents/LinuxProject/BAR4_slices/0_4_BAR4_20210709_234000_Sunrise [-5.9183 142.6952].wav'
-SAMPLE_SPEECH = "/home/nottom/Documents/LinuxProject/example.wav"
+SAMPLE_SPEECH = '/home/nottom/Documents/LinuxProject/BAR4_slices/318_322_BAR4_20210709_234000_Sunrise [-5.9183 142.6952].wav'
+#SAMPLE_SPEECH = "/home/nottom/Documents/LinuxProject/example.wav"
 
 def plot_waveform(waveform, sr, title="Waveform"):
     waveform = waveform.numpy()
@@ -21,7 +21,7 @@ def plot_waveform(waveform, sr, title="Waveform"):
     axes.plot(time_axis, waveform[0], linewidth=1)
     axes.grid(True)
     figure.suptitle(title)
-    plt.show(block=False)
+    plt.show(block=True)
 
 def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
     fig, axs = plt.subplots(1, 1)
@@ -30,7 +30,7 @@ def plot_spectrogram(specgram, title=None, ylabel="freq_bin"):
     axs.set_xlabel("frame")
     im = axs.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto")
     fig.colorbar(im, ax=axs)
-    plt.show(block=False)
+    plt.show(block=True)
 
 def plot_fbank(fbank, title=None):
     fig, axs = plt.subplots(1, 1)
@@ -38,9 +38,23 @@ def plot_fbank(fbank, title=None):
     axs.imshow(fbank, aspect="auto")
     axs.set_ylabel("frequency bin")
     axs.set_xlabel("mel bin")
-    plt.show(block=False)
+    plt.show(block=True)
 
-#open audiofile and source waveform and samplerate
-
+#TO PLOT THE SPECTROGRAM:
 SPEECH_WAVEFORM, SAMPLE_RATE = torchaudio.load(SAMPLE_SPEECH)
-plot_waveform(SPEECH_WAVEFORM, SAMPLE_RATE, title="Original waveform")
+n_fft = 1024
+win_length = None
+hop_length = 512
+# Define transform
+spectrogram = T.Spectrogram(
+    n_fft=n_fft,
+    win_length=win_length,
+    hop_length=hop_length,
+    center=True,
+    pad_mode="reflect",
+    power=2.0,)
+# Perform transform
+spec = spectrogram(SPEECH_WAVEFORM)
+plot_spectrogram(spec[0], title="Spectrogram_" + str(SAMPLE_SPEECH[48:52]))
+
+

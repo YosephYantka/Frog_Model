@@ -9,10 +9,10 @@ from pydub import AudioSegment
 import math
 
 #set file and folder(s)
-chunk_folder = '/home/nottom/Documents/LinuxProject/BAR4_slices'
+chunk_folder = '/home/nottom/Documents/LinuxProject/BAR4_slices_1'
 wav_file = 'BAR4_20210709_234000_Sunrise [-5.9183 142.6952].wav'
 #^this file must be in the chunk_folder
-filename = 'BAR4_20210709_234000_Sunrise [-5.9183 142.6952]'
+filename = 'BAR4_20210709_234000'
 audacity_labels = '/home/nottom/Documents/LinuxProject/labels.txt'
 
 #Split audio file into 4 second clips
