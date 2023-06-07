@@ -15,12 +15,13 @@ matplotlib.use('qt5agg')
 torch.random.manual_seed(0)
 
 # set file and folder(s)
-audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/BAR3_20210721_010000.txt' #ALTER
-chunk_folder = '/home/nottom/Documents/LinuxProject/chunks' #ALTER
-chunk_file_raw = 'BAR3_20210721_010000_Rec [-6.4308 143.2175].wav' #ALTER
-chunk_file = str(chunk_file_raw[0:-27] + '.wav')
+chunk_folder = '/home/nottom/Documents/LinuxProject/chunks'
+chunk_file = 'BAR3_20210721_010000.wav'
 # ^this file must be in the chunks folder
+#wav_file = '/home/nottom/Documents/LinuxProject/BAR4_slices_1/BAR4_20210709_234000.wav'
 filename = str(chunk_file[0:-4])
+print(filename)
+audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/BAR3_20210721_010000.txt'
 
 # Split audio file into 4 second clips
 class SplitWavAudioMubin():
@@ -49,7 +50,7 @@ class SplitWavAudioMubin():
             if i == total_secs - sec_per_split:
                 print('All splited successfully')
 
-split_wav = SplitWavAudioMubin(chunk_folder, chunk_file_raw)
+split_wav = SplitWavAudioMubin(chunk_folder, chunk_file)
 split_wav.multiple_split(sec_per_split=4)
 
 # for creating list of all dummy annotations
@@ -86,7 +87,7 @@ for t0, t1, id, f0, f1 in annotations_list:
 for t0, t1, id, f0, f1 in annotations_list:
     annotation[:, 0] = torch.logical_and(torch.sum(annotation, 1) == 0, fours > 0)
 
-# write a text file for each 'chunk'
+# write a text file for each 'chunk':
 x = 0
 y = 4
 for chunk in annotation:
@@ -94,8 +95,8 @@ for chunk in annotation:
     encoding = chunk.tolist()
     encoding = [int(x) for x in encoding]
     encoding_string = f'{encoding[0]}, {encoding[1]}, {encoding[2]}, {encoding[3]}'
-    with open('/home/nottom/Documents/LinuxProject/text_files/' + name + '.txt', 'x') as f:
-        f.write(encoding_string)
+    with open('/home/nottom/Documents/LinuxProject/text/' + name + '.txt', 'x') as f:
+            f.write(encoding_string)
     x = x + 3
     y = y + 3
 #input a 0 for background chunks:
@@ -104,7 +105,7 @@ for file in os.listdir(text):
     f = open(join_path, 'r')
     content = f.read()
     if content == '0, 0, 0, 0':
-        with open('/home/nottom/Documents/LinuxProject/text_files/' + file, 'w') as f:
+        with open('/home/nottom/Documents/LinuxProject/text/' + file, 'w') as f:
             f.write(str('1, 0, 0, 0'))
 
 #class for creating spectrogram
