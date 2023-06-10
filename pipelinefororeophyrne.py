@@ -90,4 +90,3 @@ for chunk in annotation:
         f.write(encoding_string)
     x = x+3
     y = y+3
-
