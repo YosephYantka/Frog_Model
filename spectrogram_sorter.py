@@ -11,6 +11,9 @@ import librosa
 import matplotlib.pyplot as plt
 import os
 
+#USE THE EXTENSION SHUTIL FOR MOVING FILES AND DIRECTORIES!!
+#https://stackoverflow.com/questions/69428860/move-files-from-a-directory-to-another-based-on-a-condition
+
 specgram_folder = '/home/nottom/Documents/LinuxProject/specgrams'
 
 for file in os.listdir(specgram_folder):
@@ -22,7 +25,7 @@ for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
     f = open(join_path, 'r')
     content = f.read()
-    if content == '1, 0, 0, 0':
+    if content == '0, 1, 0, 0':
         print(file)
 
 

@@ -99,15 +99,6 @@ for chunk in annotation:
         f.write(encoding_string)
     x = x + 3
     y = y + 3
-#input a 0 for background chunks:
-for file in os.listdir(text_files):
-    join_path = os.path.join(text_files, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    if content == '0, 0, 0, 0':
-        with open('/home/nottom/Documents/LinuxProject/text_files/' + file, 'w') as f:
-            f.write(str('1, 0, 0, 0'))
-
 #class for creating spectrogram
 
 def save_spectrogram(specgram, title=None, ylabel="freq_bin"):
@@ -144,4 +135,13 @@ for file in os.listdir(chunk_folder):
     #save_spectrogram(spec[0], title= str(x) + '_' + str(y) + '_' + "spectrogram_" + str(filename))
     x = x + 3
     y = y + 3
+
+#input a 0 for background chunks in text_files:
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    if content == '0, 0, 0, 0':
+        with open('/home/nottom/Documents/LinuxProject/text_files/' + file, 'w') as f:
+            f.write(str('1, 0, 0, 0'))
 
