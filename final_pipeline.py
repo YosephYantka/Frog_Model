@@ -15,12 +15,13 @@ matplotlib.use('qt5agg')
 torch.random.manual_seed(0)
 
 # set file and folder(s)
-audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/BAR3_20210721_010000.txt' #ALTER
-chunk_folder = '/home/nottom/Documents/LinuxProject/chunks' #ALTER
-chunk_file_raw = 'BAR3_20210721_010000_Rec [-6.4308 143.2175].wav' #ALTER
-chunk_file = str(chunk_file_raw[0:-27] + '.wav')
+audacity_labels = '/home/nottom/Documents/LinuxProject/H6BAR5_20190813_231720.txt' #ALTER
+chunk_file_raw = 'H6BAR5_20190813_231720.wav' #ALTER
+chunk_folder = '/home/nottom/Documents/LinuxProject/chunks'
+text_files = '/home/nottom/Documents/LinuxProject/text_files'
+#chunk_file = str(chunk_file_raw[0:-27] + '.wav')
 # ^this file must be in the chunks folder
-filename = str(chunk_file[0:-4])
+filename = str(chunk_file_raw[0:-4])
 
 # Split audio file into 4 second clips
 class SplitWavAudioMubin():
@@ -99,8 +100,8 @@ for chunk in annotation:
     x = x + 3
     y = y + 3
 #input a 0 for background chunks:
-for file in os.listdir(text):
-    join_path = os.path.join(text, file)
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
     f = open(join_path, 'r')
     content = f.read()
     if content == '0, 0, 0, 0':
