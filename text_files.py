@@ -12,9 +12,6 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 
-matplotlib.use('qt5agg')
-torch.random.manual_seed(0)
-
 # set file and folder(s)
 audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/M1_1293_20150628_235255.txt' #ALTER
 chunk_file_raw = '1293__0__20150628_235255.wav' #ALTER
@@ -25,7 +22,7 @@ text_files = '/home/nottom/Documents/LinuxProject/text_files'
 filename = str(chunk_file_raw[0:-4])
 print(filename)
 
-# Split audio file into 4 second clips
+
 class SplitWavAudioMubin():
     def __init__(self, folder, filename):
         self.folder = folder
@@ -53,8 +50,7 @@ class SplitWavAudioMubin():
                 print('All splited successfully')
 
 split_wav = SplitWavAudioMubin(chunk_folder, chunk_file_raw)
-split_wav.multiple_split(sec_per_split=4)
-os.remove('/home/nottom/Documents/LinuxProject/chunks/' + chunk_file_raw)
+
 
 # for creating list of all annotations
 fp = open(audacity_labels, "r")
@@ -103,50 +99,6 @@ for chunk in annotation:
     x = x + 3
     y = y + 3
 
-#class for creating spectrogram
-def save_spectrogram(specgram, title=None, ylabel="freq_bin"):
-    fig, axs = plt.subplots(1, 1)
-    axs.set_title(title or "Spectrogram (db)")
-    axs.set_ylabel(ylabel)
-    axs.set_xlabel("frame")
-    im = axs.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto")
-    fig.colorbar(im, ax=axs)
-    plt.savefig("/home/nottom/Documents/LinuxProject/specgrams/" + str(title) + '.png')
-    plt.close()
-
-#iterate through each file in the chunk folder
-directory = chunk_folder
-x = 0
-y = 4
-for file in os.listdir(chunk_folder):
-    f = os.path.join(directory, file)
-    SPEECH_WAVEFORM, SAMPLE_RATE = torchaudio.load(f)
-    n_fft = 1024
-    win_length = None
-    hop_length = 512
-    n_mels = 128
-    sample_rate = 48000
-    # Define transform
-    mel_spectrogram = T.MelSpectrogram(
-        sample_rate=sample_rate,
-        n_fft=n_fft,
-        win_length=win_length,
-        hop_length=hop_length,
-        center=True,
-        pad_mode="reflect",
-        power=2.0,
-        norm="slaney",
-        onesided=True,
-        n_mels=n_mels,
-        mel_scale="htk",
-    )
-    # Perform transform
-    melspec = mel_spectrogram(SPEECH_WAVEFORM)
-    save_spectrogram(melspec[0], title=str(file))
-    #save_spectrogram(spec[0], title= str(x) + '_' + str(y) + '_' + "spectrogram_" + str(filename))
-    x = x + 3
-    y = y + 3
-
 #input a 0 for background chunks in text_files:
 for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
@@ -155,63 +107,3 @@ for file in os.listdir(text_files):
     if content == '0, 0, 0, 0':
         with open('/home/nottom/Documents/LinuxProject/text_files/' + file, 'w') as f:
             f.write(str('1, 0, 0, 0'))
-
-#move spectrograms into folders based on class:
-for file in os.listdir(text_files):
-    join_path = os.path.join(text_files, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    filename = str(file[0:-4])
-
-    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/notata_2015/' + filename + '_1_.png'
-    if content == '0, 1, 0, 0':
-        shutil.move(original, destination)
-
-for file in os.listdir(text_files):
-    join_path = os.path.join(text_files, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    filename = str(file[0:-4])
-
-    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/background_2015/' + filename + '_0_.png'
-    if content == '1, 0, 0, 0':
-        shutil.move(original, destination)
-
-#clear contents of all folders that need clearing
-
-import os, shutil
-folder = '/home/nottom/Documents/LinuxProject/chunks'
-for filename in os.listdir(folder):
-    file_path = os.path.join(folder, filename)
-    try:
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-    except Exception as e:
-        print('Failed to delete %s. Reason: %s' % (file_path, e))
-import os, shutil
-
-folder = '/home/nottom/Documents/LinuxProject/text_files'
-for filename in os.listdir(folder):
-    file_path = os.path.join(folder, filename)
-    try:
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-    except Exception as e:
-        print('Failed to delete %s. Reason: %s' % (file_path, e))
-
-folder = '/home/nottom/Documents/LinuxProject/specgrams'
-for filename in os.listdir(folder):
-    file_path = os.path.join(folder, filename)
-    try:
-        if os.path.isfile(file_path) or os.path.islink(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-    except Exception as e:
-        print('Failed to delete %s. Reason: %s' % (file_path, e))
