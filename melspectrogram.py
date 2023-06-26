@@ -11,6 +11,7 @@ import librosa
 import matplotlib.pyplot as plt
 import os
 from pathlib import Path
+import shutil
 
 # (Path.cwd() / 'data' / 'stuff').mkdir(parents=True, exist_ok=True)
 # sorted((Path.cwd() / 'data').glob('*.png'))
@@ -76,3 +77,21 @@ spectrogram = T.Spectrogram(
 # Perform transform
 spec = spectrogram(SPEECH_WAVEFORM)
 save_spectrogram_normal(spec[0], title="torchaudio")
+
+folder = '/home/nottom/Documents/LinuxProject/training_data/text/background_2019_2021'
+
+lala = '318_322_AAR1_20210708_184000_0_.txt'
+# print(lala[10:30])
+
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    if file.endswith('AAR1_20210708_184000_0_.txt'):
+        os.unlink(join_path)
+    elif os.path.isdir(join_path):
+        shutil.rmtree(join_path)
+
+
+    if file[11:30] == 'BAR4_20210718_140000':
+        os. unlink(file)

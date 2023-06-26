@@ -12,14 +12,23 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 
-#THE CODE IS HERE, WILL JUST NEED TO CHANCE UP THE DIRECTORY PATHS - AND RUN THIS ON THE LINUX!
-
+# #STILL NEED TO DO TEXT FILES FOR 2015 AND 2017 TRAINING DATA -
+# REMEMBER
+# TO
+# CHANGE
+# WHERE
+# THE
+# BACKGROUND
+# TEXTFILES
+# ArE
+# OUTPUTTING
+# TO
 
 # set file and folder(s)
-audacity_labels = 'C:/pythonProject/PC/audacity_labels/M1_1293_20150628_135255.txt' #ALTER
-chunk_file_raw = '1293__0__20150628_135255.wav' #ALTER
-chunk_folder = 'C:/pythonProject/PC/chunks'
-text_files = 'C:/pythonProject/PC/text_files'
+audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/H6BAR5_20210707_030000.txt' #ALTER
+chunk_file_raw = 'BAR5_20210707_030000.wav' #ALTER - make sure there are no characters after the time (eg. '...180000.wav'
+chunk_folder = '/home/nottom/Documents/LinuxProject/chunks'
+text_files = '/home/nottom/Documents/LinuxProject/text_files'
 chunk_file = str(chunk_file_raw[0:-27] + '.wav')
 # ^this file must be in the chunks folder
 filename = str(chunk_file_raw[0:-4])
@@ -96,7 +105,7 @@ for chunk in annotation:
     encoding = chunk.tolist()
     encoding = [int(x) for x in encoding]
     encoding_string = f'{encoding[0]}, {encoding[1]}, {encoding[2]}, {encoding[3]}'
-    with open('C:/pythonProject/PC/text_files/' + name + '.txt', 'x') as f:
+    with open('/home/nottom/Documents/LinuxProject/text_files/' + name + '.txt', 'x') as f:
         f.write(encoding_string)
     x = x + 3
     y = y + 3
@@ -107,7 +116,7 @@ for file in os.listdir(text_files):
     f = open(join_path, 'r')
     content = f.read()
     if content == '0, 0, 0, 0':
-        with open('C:/pythonProject/PC/text_files/' + file, 'w') as f:
+        with open('/home/nottom/Documents/LinuxProject/text_files/' + file, 'w') as f:
             f.write(str('1, 0, 0, 0'))
 
 #move text files into folders based on class:
@@ -117,8 +126,8 @@ for file in os.listdir(text_files):
     content = f.read()
     filename = str(file[0:-4])
 
-    original = 'C:/pythonProject/PC/text_files/' + filename + '.txt'
-    destination = 'C:/pythonProject/PC/text_files_for_csv/notata/' + filename + '_1_.txt'
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/training_data/text/notata/' + filename + '_1_.txt'
     if content == '0, 1, 0, 0':
         shutil.move(original, destination)
 
@@ -128,14 +137,24 @@ for file in os.listdir(text_files):
     content = f.read()
     filename = str(file[0:-4])
 
-    original = 'C:/pythonProject/PC/text_files/' + filename + '.txt'
-    destination = 'C:/pythonProject/PC/text_files_for_csv/2015_background/' + filename + '_0_.txt'
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/training_data/text/background_SELECTWHICHONE/' + filename + '_0_.txt'
     if content == '1, 0, 0, 0':
         shutil.move(original, destination)
 
 
 #remove contents of text file
-folder = 'C:/pythonProject/PC/text_files'
+folder = '/home/nottom/Documents/LinuxProject/text_files/'
+for filename in os.listdir(folder):
+    file_path = os.path.join(folder, filename)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
+folder = '/home/nottom/Documents/LinuxProject/chunks'
 for filename in os.listdir(folder):
     file_path = os.path.join(folder, filename)
     try:

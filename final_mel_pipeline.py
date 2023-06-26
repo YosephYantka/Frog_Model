@@ -162,9 +162,8 @@ for file in os.listdir(text_files):
     f = open(join_path, 'r')
     content = f.read()
     filename = str(file[0:-4])
-
     original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/notata_2015/' + filename + '_1_.png'
+    destination = '/home/nottom/Documents/LinuxProject/training_data/spectograms/notata_2015/' + filename + '_1_.png'
     if content == '0, 1, 0, 0':
         shutil.move(original, destination)
 
@@ -173,15 +172,35 @@ for file in os.listdir(text_files):
     f = open(join_path, 'r')
     content = f.read()
     filename = str(file[0:-4])
-
     original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/background_2015/' + filename + '_0_.png'
+    destination = '/home/nottom/Documents/LinuxProject/training_data/spectograms/background_2015/' + filename + '_0_.png'
     if content == '1, 0, 0, 0':
         shutil.move(original, destination)
 
+#move text files into folders based on class:
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/training_data/text/notata/' + filename + '_1_.txt'
+    if content == '0, 1, 0, 0':
+        shutil.move(original, destination)
+
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/training_data/text/background_SELECTWHICHONE/' + filename + '_0_.txt'
+    if content == '1, 0, 0, 0':
+        shutil.move(original, destination)
+
+
 #clear contents of all folders that need clearing
 
-import os, shutil
 folder = '/home/nottom/Documents/LinuxProject/chunks'
 for filename in os.listdir(folder):
     file_path = os.path.join(folder, filename)
@@ -192,7 +211,6 @@ for filename in os.listdir(folder):
             shutil.rmtree(file_path)
     except Exception as e:
         print('Failed to delete %s. Reason: %s' % (file_path, e))
-import os, shutil
 
 folder = '/home/nottom/Documents/LinuxProject/text_files'
 for filename in os.listdir(folder):
