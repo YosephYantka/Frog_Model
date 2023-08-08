@@ -1,18 +1,3 @@
-# this file chunks specified wav files, and creates and exports text documents and spectrograms for each chunk
-import torch
-import torchaudio
-import torchaudio.functional as F
-import torchaudio.transforms as T
-import re
-from pydub import AudioSegment
-import math
-import matplotlib
-import librosa
-import matplotlib.pyplot as plt
-import os
-from pathlib import Path
-import shutil
-
 # (Path.cwd() / 'data' / 'stuff').mkdir(parents=True, exist_ok=True)
 # sorted((Path.cwd() / 'data').glob('*.png'))
 #
@@ -61,7 +46,6 @@ mel_spectrogram = T.MelSpectrogram(
 melspec = mel_spectrogram(SPEECH_WAVEFORM)
 save_spectrogram_mel(melspec[0], title="MelSpectrogram - torchaudio", ylabel="mel freq")
 
-
 n_fft = 1024
 win_length = None
 hop_length = 512
@@ -78,20 +62,40 @@ spectrogram = T.Spectrogram(
 spec = spectrogram(SPEECH_WAVEFORM)
 save_spectrogram_normal(spec[0], title="torchaudio")
 
-folder = '/home/nottom/Documents/LinuxProject/training_data/text/background_2019_2021'
+folder = '/home/nottom/Documents/LinuxProject/training_data/spectrograms'
 
-lala = '318_322_AAR1_20210708_184000_0_.txt'
-# print(lala[10:30])
-
+# use this to convert all rgb images to greyscale
+import PIL
+import matplotlib
+import os
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    if file.endswith('AAR1_20210708_184000_0_.txt'):
-        os.unlink(join_path)
-    elif os.path.isdir(join_path):
-        shutil.rmtree(join_path)
+    image = PIL.Image.open(join_path).convert("L")
+    image.save('/home/nottom/Documents/LinuxProject/first_model/img_dir_valid_grey/' + file)
+
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    image = PIL.Image.open(join_path).convert("L")
+    image.save('/home/nottom/Documents/LinuxProject/first_model/img_dir_training_grey/' + file)
 
 
-    if file[11:30] == 'BAR4_20210718_140000':
-        os. unlink(file)
+# use this to check if all images are the same size (THEY AREN'T)
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training_grey'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    img = PIL.Image.open(join_path)
+    width = img.width
+    height = img.height
+    # print(height, width)
+
+    if width != 376:
+        print(file)
+    # if height != 128:
+    #     print(file)
+
+looloo = '/home/nottom/Documents/LinuxProject/miscandfashionmnist/54_58_BAR2_20210710_221000_0_.png'
+looloo.size()
+
+# check is pad_sequence works

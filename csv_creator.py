@@ -1,28 +1,64 @@
 #this file is for creating a csv out of the text files in a directory for training
-import torch
-import torchaudio
-import torchaudio.functional as F
-import torchaudio.transforms as T
-import re
-from pydub import AudioSegment
-import math
-import matplotlib
-import csv
-import librosa
-import matplotlib.pyplot as plt
 import os
-import shutil
+import csv
 
-text_files = '/home/nottom/Documents/LinuxProject/training_data/text/background_2019_2021'
+# This code will transform all the one hot encoding values to a single integer
 
-os.chdir('/home/nottom/Documents/LinuxProject/training_data/text/background_2019_2021')
+folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    reader = open(join_path, 'r')
+    content = reader.read()
+    #print(content)
+    if content == '1, 0, 0, 0':
+         writer = open(join_path, 'w')
+         writer.write("1")
+      if content == '0, 1, 0, 0':
+         writer = open(join_path, 'w')
+         writer.write("2")
 
+# This code will remove all segments that aren't of uniform size
+folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text' # make sure to do both training and validation text directories
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    if file.startswith('3591'):
+        os.unlink(join_path)
+    if file[0:4] == '3594':
+        os.unlink(join_path)
+
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid' # make sure to do both training and validation image directories
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    if file.startswith('3591'):
+        os.unlink(join_path)
+    if file[0:4] == '3594':
+        os.unlink(join_path)
+
+#this file will create a csv from all text files
 from pathlib import Path
-with open('big.csv', 'w') as out_file:
+os.chdir('/home/nottom/Documents/LinuxProject/first_model/valid_text')
+with open('annotations_file_valid.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
-    csv_out.writerow(['FileName', 'Content'])
+    # csv_out.writerow(['FileName', 'Content'])
     for fileName in Path('.').glob('*.txt'):
-        csv_out.writerow([str(fileName),open(str(fileName.absolute())).read().strip()])
+        # lala = fileName
+        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
+        csv_out.writerow([str(fileName.with_suffix('.png')), open(str(fileName.absolute())).read().strip()])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

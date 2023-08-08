@@ -11,15 +11,18 @@ import librosa
 import matplotlib.pyplot as plt
 import os
 import shutil
+from tqdm import tqdm
 
 matplotlib.use('qt5agg')
 torch.random.manual_seed(0)
 
 # set file and folder(s)
-audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/M1_1293_20150628_235255.txt' #ALTER
-chunk_file_raw = '1293__0__20150628_235255.wav' #ALTER
+audacity_labels = '/home/nottom/Documents/LinuxProject/audacity_labels/more_training_labels/M1BAR1_20210722_000000.txt' #ALTER
+chunk_file_raw = 'AAR1_20210722_000000.wav' #ALTER
 chunk_folder = '/home/nottom/Documents/LinuxProject/chunks'
 text_files = '/home/nottom/Documents/LinuxProject/text_files'
+label_without_txt = audacity_labels[73:-4]
+print(label_without_txt)
 #chunk_file = str(chunk_file_raw[0:-27] + '.wav')
 # ^this file must be in the chunks folder
 filename = str(chunk_file_raw[0:-4])
@@ -67,7 +70,7 @@ mylist = [float(x) for x in mylist]
 
 # make a list of lists for annotations:
 def split(list_a, chunk_size):
-    for i in range(0, len(list_a), chunk_size):
+    for i in tqdm(range(0, len(list_a), chunk_size), desc='splitting...'):
         yield list_a[i:i + chunk_size]
 
 chunk_size = 5
@@ -100,19 +103,22 @@ for chunk in annotation:
     encoding_string = f'{encoding[0]}, {encoding[1]}, {encoding[2]}, {encoding[3]}'
     with open('/home/nottom/Documents/LinuxProject/text_files/' + name + '.txt', 'x') as f:
         f.write(encoding_string)
-    x = x + 3
-    y = y + 3
+    x +=  3
+    y +=  3
 
 #class for creating spectrogram
 def save_spectrogram(specgram, title=None, ylabel="freq_bin"):
-    fig, axs = plt.subplots(1, 1)
-    axs.set_title(title or "Spectrogram (db)")
-    axs.set_ylabel(ylabel)
-    axs.set_xlabel("frame")
-    im = axs.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto")
-    fig.colorbar(im, ax=axs)
-    plt.savefig("/home/nottom/Documents/LinuxProject/specgrams/" + str(title) + '.png')
-    plt.close()
+    # fig, axs = plt.subplots(1, 1)
+    # axs.set_title(title or "Spectrogram (db)")
+    # axs.set_ylabel(ylabel)
+    # axs.set_xlabel("frame")
+    # im = axs.imshow(librosa.power_to_db(specgram), origin="lower", aspect="auto")
+    # fig.colorbar(im, ax=axs)
+    # plt.savefig("/home/nottom/Documents/LinuxProject/specgrams/" + str(title) + '.png')
+    # plt.close()
+    spec = librosa.power_to_db(specgram)
+    plt.imsave("/home/nottom/Documents/LinuxProject/specgrams/" + str(title) + '.png', spec)
+
 
 #iterate through each file in the chunk folder
 directory = chunk_folder
@@ -147,7 +153,7 @@ for file in os.listdir(chunk_folder):
     x = x + 3
     y = y + 3
 
-#input a 0 for background chunks in text_files:
+#input a 1 for background chunks in text_files:
 for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
     f = open(join_path, 'r')
@@ -163,7 +169,7 @@ for file in os.listdir(text_files):
     content = f.read()
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/spectograms/notata_2015/' + filename + '_1_.png'
+    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/spectrograms/notata/' + filename + '_1_.png'
     if content == '0, 1, 0, 0':
         shutil.move(original, destination)
 
@@ -173,7 +179,7 @@ for file in os.listdir(text_files):
     content = f.read()
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/spectograms/background_2015/' + filename + '_0_.png'
+    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/spectrograms/background/' + filename + '_0_.png'
     if content == '1, 0, 0, 0':
         shutil.move(original, destination)
 
@@ -184,7 +190,7 @@ for file in os.listdir(text_files):
     content = f.read()
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/text/notata/' + filename + '_1_.txt'
+    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/text_files/notata/' + filename + '_1_.txt'
     if content == '0, 1, 0, 0':
         shutil.move(original, destination)
 
@@ -194,7 +200,7 @@ for file in os.listdir(text_files):
     content = f.read()
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
-    destination = '/home/nottom/Documents/LinuxProject/training_data/text/background_SELECTWHICHONE/' + filename + '_0_.txt'
+    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/text_files/background/' + filename + '_0_.txt'
     if content == '1, 0, 0, 0':
         shutil.move(original, destination)
 
