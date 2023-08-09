@@ -4,18 +4,18 @@ import csv
 
 # This code will transform all the one hot encoding values to a single integer
 
-folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text'
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     reader = open(join_path, 'r')
     content = reader.read()
-    #print(content)
-    if content == '1, 0, 0, 0':
+    print(content)
+    if content == '1':
+         writer = open(join_path, 'w')
+         writer.write("0")
+      if content == '2':
          writer = open(join_path, 'w')
          writer.write("1")
-      if content == '0, 1, 0, 0':
-         writer = open(join_path, 'w')
-         writer.write("2")
 
 # This code will remove all segments that aren't of uniform size
 folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text' # make sure to do both training and validation text directories
