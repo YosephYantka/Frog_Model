@@ -35,9 +35,12 @@ for file in os.listdir(folder):
         os.unlink(join_path)
 
 #this file will create a csv from all text files
+import os
+import csv
 from pathlib import Path
-os.chdir('/home/nottom/Documents/LinuxProject/first_model/valid_text')
-with open('annotations_file_valid.csv', 'w') as out_file:
+folder = '/home/nottom/Documents/LinuxProject/first_model/training_text'
+os.chdir('/home/nottom/Documents/LinuxProject/first_model/training_text')
+with open('annotations_file_training.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
     # csv_out.writerow(['FileName', 'Content'])
     for fileName in Path('.').glob('*.txt'):

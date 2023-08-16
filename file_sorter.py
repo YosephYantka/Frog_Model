@@ -4,15 +4,22 @@ import torchaudio
 import torchaudio.functional as F
 import torchaudio.transforms as T
 import re
-from pydub import AudioSegment
 import math
 import matplotlib
-import librosa
 import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 import shutil
 
+#for finding incorrectly labelled text files in label directory :
+import os
+folder = '/home/nottom/Documents/LinuxProject/first_model/training_text'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    if content != '1' and content != '2':
+        print(file)
 
 
 #file deleter - CURSED
@@ -51,6 +58,31 @@ for file in os.listdir(folder):
 
 
 
+
+    if content != '1' and '2':
+        print(file)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 folder = '/home/nottom/Documents/LinuxProject/test_data/text/background_backup'
 #this one to move files
 for file in range(1, 218(os.listdir(folder))):
@@ -61,8 +93,6 @@ for file in range(1, 218(os.listdir(folder))):
     # if file.endswith('1506__0__20190817_205359_0_.txt'):
     #     shutil.move(original, destination)
     print(file)
-
-
 
 
 for file in os.listdir(folder):
