@@ -16,18 +16,28 @@ for file in os.listdir(folder):
     image.save('/home/nottom/Documents/LinuxProject/first_model/img_dir_training_grey/' + file)
 
 
+import os
+import PIL
+import shutil
+folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training'
+for file in folder:
+    if file.endswith('_0_.png'):
+        with open('/home/nottom/Documents/LinuxProject/first_model/balanced_text_training/' + file[:-4] + '.txt', 'x') as f:
+            f.write("1")
+    if file.endswith('_1_.png'):
+        with open('/home/nottom/Documents/LinuxProject/first_model/balanced_text_training/' + file[:-4] + '.txt', 'x') as f:
+            f.write("2")
 
-# use this to check if all images are the same size (THEY AREN'T)
-folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training_grey'
-for file in os.listdir(folder):
-    join_path = os.path.join(folder, file)
-    img = PIL.Image.open(join_path)
-    width = img.width
-    height = img.height
-    # print(height, width)
-
-    if width != 376:
-        print(file)
-    # if height != 128:
-    #     print(file)
-
+#For creating balanced datasets - culls total background directory and creates a corresponding text directory
+import shutil
+import PIL
+import os
+#culling
+folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training'
+# folder = '/home/nottom/Documents/LinuxProject/first_model/backups/training_data_text'
+from random import sample
+#creates new corresponding text file
+files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training')
+for file in sample(files,12745):
+    path = os.path.join(folder, file)
+    os.unlink(path)

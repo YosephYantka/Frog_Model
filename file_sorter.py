@@ -10,9 +10,11 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 import shutil
-
-#for finding incorrectly labelled text files in label directory :
+import shutil
+import PIL
 import os
+#for finding incorrectly labelled text files in label directory :
+
 folder = '/home/nottom/Documents/LinuxProject/first_model/training_text'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
@@ -21,15 +23,71 @@ for file in os.listdir(folder):
     if content != '1' and content != '2':
         print(file)
 
+# use this to check if all images are the same size (THEY AREN'T)
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training_grey'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    img = PIL.Image.open(join_path)
+    width = img.width
+    height = img.height
+    # print(height, width)
+    if width != 376:
+        print(file)
+    # if height != 128:
+    #     print(file)
+# This code will remove all segments that aren't of uniform size
+folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text' # make sure to do both training and validation text directories
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    if file.startswith('3591'):
+        os.unlink(join_path)
+    if file[0:4] == '3594':
+        os.unlink(join_path)
+
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid' # make sure to do both training and validation image directories
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    if file.startswith('3591'):
+        os.unlink(join_path)
+    if file[0:4] == '3594':
+        os.unlink(join_path)
+
+#For creating balanced datasets - culls total background directory and creates a corresponding text directory
+#culling
+folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training'
+# folder = '/home/nottom/Documents/LinuxProject/first_model/backups/training_data_text'
+from random import sample
+files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training')
+for file in sample(files,12745):
+    path = os.path.join(folder, file)
+    os.unlink(path)
+
+#creates new corresponding text file
+import os
+import PIL
+import shutil
+folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training'
+for file in os.listdir(folder):
+    if file.endswith('_0_.png'):
+        with open('/home/nottom/Documents/LinuxProject/first_model/balanced_text_training/' + file[:-4] + '.txt', 'x') as f:
+            f.write("1")
+    if file.endswith('_1_.png'):
+        with open('/home/nottom/Documents/LinuxProject/first_model/balanced_text_training/' + file[:-4] + '.txt', 'x') as f:
+            f.write("2")
+
+
+
+
 
 #file deleter - CURSED
-
 folder = '/home/nottom/Documents/LinuxProject/first_model/training_data_text'
-
 for filename in os.listdir(folder):
     file_path = os.path.join(folder, filename)
     if filename.endswith('.png'):
         os.unlink(file_path)
+
+
+
 
 
 
