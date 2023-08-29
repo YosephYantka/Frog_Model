@@ -4,6 +4,8 @@ import csv
 
 # This code will transform all the one hot encoding values to a single integer
 
+
+
 folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
@@ -38,9 +40,9 @@ for file in os.listdir(folder):
 import os
 import csv
 from pathlib import Path
-folder = '/home/nottom/Documents/LinuxProject/first_model/training_text'
-os.chdir('/home/nottom/Documents/LinuxProject/first_model/training_text')
-with open('annotations_file_training.csv', 'w') as out_file:
+folder = '/home/nottom/Documents/LinuxProject/first_model/text_dir_valid'
+os.chdir('/home/nottom/Documents/LinuxProject/first_model/text_dir_valid')
+with open('annotations_file_valid.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
     # csv_out.writerow(['FileName', 'Content'])
     for fileName in Path('.').glob('*.txt'):

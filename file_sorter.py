@@ -12,19 +12,21 @@ from pathlib import Path
 import shutil
 import shutil
 import PIL
+from random import sample
 import os
-#for finding incorrectly labelled text files in label directory :
 
-folder = '/home/nottom/Documents/LinuxProject/first_model/training_text'
+#for finding incorrectly labelled text files in label directory :
+folder = '/home/nottom/Documents/LinuxProject/first_model/text_dir_valid'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     f = open(join_path, 'r')
     content = f.read()
     if content != '1' and content != '2':
         print(file)
+        print(content)
 
 # use this to check if all images are the same size (THEY AREN'T)
-folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training_grey'
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     img = PIL.Image.open(join_path)
@@ -35,6 +37,7 @@ for file in os.listdir(folder):
         print(file)
     # if height != 128:
     #     print(file)
+
 # This code will remove all segments that aren't of uniform size
 folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text' # make sure to do both training and validation text directories
 for file in os.listdir(folder):
@@ -54,11 +57,14 @@ for file in os.listdir(folder):
 
 #For creating balanced datasets - culls total background directory and creates a corresponding text directory
 #culling
-folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training'
-# folder = '/home/nottom/Documents/LinuxProject/first_model/backups/training_data_text'
+import os
 from random import sample
-files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training')
-for file in sample(files,12745):
+import random
+import shutil
+
+folder = '/home/nottom/Documents/LinuxProject/first_model/total_background_files' #need this line and below line!!
+files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/total_background_files') #need this!!
+for file in sample(files,5523):
     path = os.path.join(folder, file)
     os.unlink(path)
 
@@ -66,15 +72,35 @@ for file in sample(files,12745):
 import os
 import PIL
 import shutil
-folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training'
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training_LATEST'
 for file in os.listdir(folder):
     if file.endswith('_0_.png'):
-        with open('/home/nottom/Documents/LinuxProject/first_model/balanced_text_training/' + file[:-4] + '.txt', 'x') as f:
+        with open('/home/nottom/Documents/LinuxProject/first_model/text_dir_training_LATEST/' + file[:-4] + '.txt', 'x') as f:
             f.write("1")
     if file.endswith('_1_.png'):
-        with open('/home/nottom/Documents/LinuxProject/first_model/balanced_text_training/' + file[:-4] + '.txt', 'x') as f:
-            f.write("2")
+        with open('/home/nottom/Documents/LinuxProject/first_model/text_dir_training_LATEST/' + file[:-4] + '.txt', 'x') as f:
+            f.write("2") #1 and 2 are necessary for this code to work with current VGG16 structure
 
+
+
+folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training_LATEST'
+
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    f = open(join_path, 'r')
+    original = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training_LATEST/' + file
+    destination = '/home/nottom/Documents/LinuxProject/first_model/backups/total_background_files/' + file
+    if file.endswith('_0_.png'):
+        shutil.move(original, destination)
+
+x = 0
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    f = open(join_path, 'r')
+    if file.endswith('_0_.png'):
+        # print(file)
+        x = x + 1
+print(x)
 
 
 
@@ -111,11 +137,6 @@ for file in os.listdir(folder):
     destination = '/home/nottom/Documents/LinuxProject/test_data/spectrograms/trimmed/H2BAR2_20210710_221000/' + file
     if file.endswith('BAR2_20210710_221000_0_.png'):
         shutil.move(original, destination)
-
-
-
-
-
 
     if content != '1' and '2':
         print(file)
