@@ -89,3 +89,36 @@ class FrogLoaderDataSet(Dataset):
 
 #
 # img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
+
+
+# code for evaluating model on test dataset:
+
+model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/first_model_version.pt"))
+model.eval()
+def test(model, device, test_loader):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    running_accuracy = 0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images = images.to(device).type(torch.float) / 255
+            labels = labels.type(torch.float).to(device)
+            labels[
+                labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
+            labels[labels == 2] = 1
+            labels = labels[:, None]
+
+            # forward pass
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            metric = BinaryAccuracy(threshold=0.5).to(device)
+            accuracy = metric(outputs, labels)
+
+            running_accuracy += accuracy
+
+    print('Test set: Accuracy: {} %'.format(accuracy*100))
+    print('total running accuracy:{}, averaged running accuracy: {}'.format(running_accuracy, running_accuracy / 171))
+
+test(model, 'cuda', test_loader)
+

@@ -3,11 +3,11 @@ import matplotlib
 import os
 
 #THIS CODE CONVERTS ALL RGBA FILES TO GREYSCALE
-folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid'
+folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_test_rgba'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     image = PIL.Image.open(join_path).convert("L")
-    image.save('/home/nottom/Documents/LinuxProject/first_model/img_dir_valid_grey/' + file)
+    image.save('/home/nottom/Documents/LinuxProject/first_model/img_dir_test/' + file)
 
 folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training'
 for file in os.listdir(folder):

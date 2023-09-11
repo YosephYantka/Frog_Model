@@ -16,7 +16,7 @@ from random import sample
 import os
 
 #for finding incorrectly labelled text files in label directory :
-folder = '/home/nottom/Documents/LinuxProject/first_model/text_dir_valid'
+folder = '/home/nottom/Documents/LinuxProject/first_model/text_directories/text_dir_test'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     f = open(join_path, 'r')
@@ -26,7 +26,7 @@ for file in os.listdir(folder):
         print(content)
 
 # use this to check if all images are the same size (THEY AREN'T)
-folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid'
+folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/notata'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     img = PIL.Image.open(join_path)
@@ -39,20 +39,20 @@ for file in os.listdir(folder):
     #     print(file)
 
 # This code will remove all segments that aren't of uniform size
-folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text' # make sure to do both training and validation text directories
+folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms' # make sure to do both training and validation text directories
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     if file.startswith('3591'):
         os.unlink(join_path)
-    if file[0:4] == '3594':
+    if file.startswith("3594"):
         os.unlink(join_path)
 
-folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid' # make sure to do both training and validation image directories
+folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/notata' # make sure to do both training and validation image directories
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     if file.startswith('3591'):
         os.unlink(join_path)
-    if file[0:4] == '3594':
+    if file.startswith('3594'):
         os.unlink(join_path)
 
 #For creating balanced datasets - culls total background directory and creates a corresponding text directory
@@ -62,9 +62,9 @@ from random import sample
 import random
 import shutil
 
-folder = '/home/nottom/Documents/LinuxProject/first_model/total_background_files' #need this line and below line!!
-files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/total_background_files') #need this!!
-for file in sample(files,5523):
+folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms' #need this line and below line!!
+files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms') #need this!!
+for file in sample(files,4645):
     path = os.path.join(folder, file)
     os.unlink(path)
 
@@ -72,13 +72,13 @@ for file in sample(files,5523):
 import os
 import PIL
 import shutil
-folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_training_LATEST'
+folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms'
 for file in os.listdir(folder):
     if file.endswith('_0_.png'):
-        with open('/home/nottom/Documents/LinuxProject/first_model/text_dir_training_LATEST/' + file[:-4] + '.txt', 'x') as f:
+        with open('/home/nottom/Documents/LinuxProject/first_model/test_data/test_text/' + file[:-4] + '.txt', 'x') as f:
             f.write("1")
     if file.endswith('_1_.png'):
-        with open('/home/nottom/Documents/LinuxProject/first_model/text_dir_training_LATEST/' + file[:-4] + '.txt', 'x') as f:
+        with open('/home/nottom/Documents/LinuxProject/first_model/test_data/test_text/' + file[:-4] + '.txt', 'x') as f:
             f.write("2") #1 and 2 are necessary for this code to work with current VGG16 structure
 
 

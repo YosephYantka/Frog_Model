@@ -20,6 +20,7 @@ from torchmetrics.classification import BinaryAccuracy
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
+os.chdir('/home/nottom/Documents/LinuxProject/first_model')
 
 #initiate wandb
 wandb.init(
@@ -163,7 +164,7 @@ def init_weights(m):
 # Hyperparameters and weight initialisation
 
 num_classes = 1
-num_epochs = 11 #I changed this to 11 to solve error at 'for epoch' line
+num_epochs = 10 #I changed this to 11 to solve error at 'for epoch' line
 batch_size = 32
 learning_rate = 0.001
 momentum = 0.9
@@ -179,6 +180,11 @@ valid_data = FrogLoaderDataset(
     img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_valid')
 valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=False)
 
+test_data = FrogLoaderDataset(
+    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_test.csv',
+    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_test')
+test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+
 model = VGG16(num_classes).to(device)
 model = model.apply(init_weights)
 
@@ -186,10 +192,14 @@ model = model.apply(init_weights)
 criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
 
+#checkpointer
+def checkpoint(model, filename):
+    torch.save(model.state_dict(), filename)
+
 # Training the model:
 total_step = len(train_loader)
 offset = random.random() / 5  #wandbstuff
-for epoch in tqdm(range(1, num_epochs), desc='epochs', unit='epoch '): #changed range to solve "division by zero error in line below)
+for epoch in tqdm(range(1, num_epochs+1), desc='epochs', unit='epoch '): #changed range to solve "division by zero error in line below)
     acc = 1 - 2 ** -epoch - random.random() / epoch - offset #wandb stuff
     loss = 2 ** -epoch + random.random() / epoch + offset #wandb stuff
     wandb.log({"acc": acc, "loss": loss})
@@ -204,8 +214,8 @@ for epoch in tqdm(range(1, num_epochs), desc='epochs', unit='epoch '): #changed 
         # Forward pass
         outputs = model(images)
         #torch metrics stuff!
-        metric = BinaryAccuracy(threshold=0.5).to(device)
-        accuracy = metric(outputs, labels)
+        # metric = BinaryAccuracy(threshold=0.5).to(device)
+        # accuracy = metric(outputs, labels)
 
         #print((outputs.detach() > 0.5).cpu().numpy().astype(np.uint8).T, labels.cpu().numpy().T)
         loss = criterion(outputs, labels)
@@ -215,14 +225,15 @@ for epoch in tqdm(range(1, num_epochs), desc='epochs', unit='epoch '): #changed 
         loss.backward()
         optimizer.step()
 
-    print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Accuracy = {}'
-          .format(epoch, num_epochs, i + 1, total_step, loss.item(), accuracy))
+    print('Epoch [{}/{}], Step [{}/{}], Training Loss: {:.4f}'
+          .format(epoch, num_epochs, i + 1, total_step, loss.item()))
 
     # Validation
     model.eval()
     with torch.no_grad():
         correct = 0
         total = 0
+        running_accuracy = 0
         for images, labels in valid_loader:
             images = images.to(device).type(torch.float) / 255
             labels = labels.type(torch.float).to(device)
@@ -236,16 +247,43 @@ for epoch in tqdm(range(1, num_epochs), desc='epochs', unit='epoch '): #changed 
             metric = BinaryAccuracy(threshold=0.5).to(device)
             accuracy = metric(outputs, labels)
 
+            running_accuracy += accuracy
             loss = criterion(outputs, labels)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-            del images, labels, outputs
 
-        correct = correct/5451
-        print('Accuracy of the network on the {} validation images: {}'.format(5451, accuracy))
-        print('Loss: {:.4f}'.format(loss.item()))
+        print('Accuracy of the model on validation images: {} %, loss of model on validation images: {:.4f}'.format(
+            accuracy * 100, loss.item()))
+        print('total running accuracy:{}, averaged running accuracy: {}'.format(running_accuracy, running_accuracy / 171))
+        checkpoint(model, f"model_version_epoch_{epoch}.pt")
 
+torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/first_model/first_model_version.pt")
 
+# evaluate model on test dataset:
+def test(model, device, test_loader):
+    for x in range(1, 11):
+        model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_" + str(x) + ".pt"))
+        model.eval()
+        test_loss = 0
+        correct = 0
+        running_accuracy = 0
+        with torch.no_grad():
+            for images, labels in test_loader:
+                images = images.to(device).type(torch.float) / 255
+                labels = labels.type(torch.float).to(device)
+                labels[
+                    labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
+                labels[labels == 2] = 1
+                labels = labels[:, None]
 
-#when it comes to running the test data through, the test data is in "/home/nottom/Documents/LinuxProject/test_data_new"
-#is the 1st, 3rd, 5th, etc. files
+                # forward pass
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                metric = BinaryAccuracy(threshold=0.5).to(device)
+                accuracy = metric(outputs, labels)
+
+                running_accuracy += accuracy
+
+        print('Epoch: {}, Test set: Accuracy: {} %'.format(x,accuracy*100))
+        print('Epoch: (), total running accuracy:{}, averaged running accuracy: {}'.format(x, running_accuracy, running_accuracy / 171))
+
+test(model, 'cuda', test_loader)
+
