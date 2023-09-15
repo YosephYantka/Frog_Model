@@ -122,3 +122,31 @@ def test(model, device, test_loader):
 
 test(model, 'cuda', test_loader)
 
+#tester for testing each epoch
+def test(model, device, test_loader):
+    for x in range(1, 11):
+        model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_" + str(x) + ".pt"))
+        model.eval()
+        test_loss = 0
+        correct = 0
+        running_accuracy = 0
+        with torch.no_grad():
+            for images, labels, filenames in test_loader:
+                images = images.to(device).type(torch.float) / 255
+                labels = labels.type(torch.float).to(device)
+                labels[
+                    labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
+                labels[labels == 2] = 1
+                labels = labels[:, None]
+
+                # forward pass
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                metric = BinaryAccuracy(threshold=0.5).to(device)
+                accuracy = metric(outputs, labels)
+                running_accuracy += accuracy
+
+        print('Epoch: {}, Test set: Accuracy: {} %'.format(x,accuracy*100))
+        print('Epoch: (), total running accuracy:{}, averaged running accuracy: {}'.format(x, running_accuracy, running_accuracy / 171))
+
+test(model, 'cuda', test_loader)

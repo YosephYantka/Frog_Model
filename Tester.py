@@ -193,106 +193,64 @@ model = model.apply(init_weights)
 criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
 
-#checkpointer
-def checkpoint(model, filename):
-    torch.save(model.state_dict(), filename)
-
-# Training the model:
-total_step = len(train_loader)
-# offset = random.random() / 5  #wandbstuff
-
-for epoch in tqdm(range(1, num_epochs+1), desc='epochs', unit='epoch '): #changed range to solve "division by zero error in line below)
-    counter = 0
-    # acc = 1 - 2 ** -epoch - random.random() / epoch - offset #wandb stuff
-    # loss = 2 ** -epoch + random.random() / epoch + offset #wandb stuff
-    # wandb.log({"acc": acc, "loss": loss})
-    for i, (images, labels, filenames) in enumerate(train_loader):
-        # Move tensors to the configured device
-        images = images.to(device).type(torch.float) / 255
-        labels = labels.type(torch.float).to(device)
-        labels[labels == 1] = 0 # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
-        labels[labels == 2] = 1
-        labels = labels[:, None]  # removing this makes it fail
-
-        # Forward pass
-        outputs = model(images)
-        #torch metrics stuff!
-        # metric = BinaryAccuracy(threshold=0.5).to(device)
-        # accuracy = metric(outputs, labels)
-
-        #print((outputs.detach() > 0.5).cpu().numpy().astype(np.uint8).T, labels.cpu().numpy().T)
-        loss = criterion(outputs, labels)
-
-        # Backward and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-    print('Epoch [{}/{}], Step [{}/{}], Training Loss: {:.4f}'
-          .format(epoch, num_epochs, i + 1, total_step, loss.item()))
-
-    # Validation
-    model.eval()
-    with torch.no_grad():
+# evaluate model on test dataset:
+def test(model, device, test_loader):
+        model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_10.pt"))
+        model.eval()
+        test_loss = 0
         correct = 0
-        total = 0
         running_accuracy = 0
-        for images, labels, filenames in valid_loader:
-            images = images.to(device).type(torch.float) / 255
-            labels = labels.type(torch.float).to(device)
-            labels[labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
-            labels[labels == 2] = 1
-            labels = labels[:, None]  # removing this makes it fail
+        with torch.no_grad():
+            for images, labels, filenames in test_loader:
+                images = images.to(device).type(torch.float) / 255
+                labels = labels.type(torch.float).to(device)
+                labels[
+                    labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
+                labels[labels == 2] = 1
+                labels = labels[:, None]
 
-            # forward pass
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            metric = BinaryAccuracy(threshold=0.5).to(device)
-            accuracy = metric(outputs, labels)
+                # forward pass
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                metric = BinaryAccuracy(threshold=0.5).to(device)
+                accuracy = metric(outputs, labels)
+                running_accuracy += accuracy
 
-            running_accuracy += accuracy
-            loss = criterion(outputs, labels)
+                # output filenames, predicted, labels
+                for data in range(batch_size):
+                    with open('/home/nottom/Documents/LinuxProject/first_model/output1/' + str(filenames[data]) + '.txt',
+                          'x') as f:
+                        f.write(str(filenames[data]))
+                        f.write("," + str(outputs[data])[7:16])
+                        f.write(str(labels[data])[7:12])
 
-        print('Accuracy of the model on validation images: {} %, loss of model on validation images: {:.4f}'.format(
-            accuracy * 100, loss.item()))
-        print('total running accuracy:{}, averaged running accuracy: {}'.format(running_accuracy, running_accuracy / 171))
-        checkpoint(model, f"model_version_epoch_{epoch}.pt")
+        print('Epoch: {}, Test set: Accuracy: {} %'.format(x,accuracy*100))
+        print('Epoch: (), total running accuracy:{}, averaged running accuracy: {}'.format(x, running_accuracy, running_accuracy / 171))
 
-torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/first_model/first_model_version.pt")
+test(model, 'cuda', test_loader)
 
-# # evaluate model on test dataset:
-# def test(model, device, test_loader):
-#         model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_10.pt"))
-#         model.eval()
-#         test_loss = 0
-#         correct = 0
-#         running_accuracy = 0
-#         with torch.no_grad():
-#             for images, labels, filenames in test_loader:
-#                 images = images.to(device).type(torch.float) / 255
-#                 labels = labels.type(torch.float).to(device)
-#                 labels[
-#                     labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
-#                 labels[labels == 2] = 1
-#                 labels = labels[:, None]
-#
-#                 # forward pass
-#                 outputs = model(images)
-#                 _, predicted = torch.max(outputs.data, 1)
-#                 metric = BinaryAccuracy(threshold=0.5).to(device)
-#                 accuracy = metric(outputs, labels)
-#                 running_accuracy += accuracy
-#
-#                 # output filenames, predicted, labels
-#                 for data in range(1, 33):
-#                     with open('/home/nottom/Documents/LinuxProject/first_model/output/' + str(filenames[0:3]) + '.txt',
-#                           'x') as f:
-#                         f.write("FILENAME:  " + str(filenames[data]))
-#                         f.write(", MODEL PREDICTION:  " + str(outputs[data])[7:16])
-#                         f.write(" REAL LABEL:  " + str(labels[data])[7:12])
-#
-#         print('Epoch: {}, Test set: Accuracy: {} %'.format(x,accuracy*100))
-#         print('Epoch: (), total running accuracy:{}, averaged running accuracy: {}'.format(x, running_accuracy, running_accuracy / 171))
-#
-# test(model, 'cuda', test_loader)
-
+# successfully constructed a csv output!!
+import os
+import csv
+from pathlib import Path
+import pandas as pd
+folder = '/home/nottom/Documents/LinuxProject/first_model/output1'
+os.chdir('/home/nottom/Documents/LinuxProject/first_model/output1')
+with open('model_predictions.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    column_names = ['Filename', 'Prediction', 'thresholded', 'label']
+    writer = csv.DictWriter(out_file, fieldnames=column_names)
+    writer.writeheader()
+    # csv_out.writerow(['FileName', 'Content'])
+    for fileName in Path('.').glob('*.txt'):
+        # lala = fileName
+        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
+        name = open(str(fileName.absolute())).read()
+        name = name.replace('[', '')
+        name = name.replace(']', '')
+        name = name[:-2]
+        name_split = name.split(',')
+        threshold = "," + str(round(float(name_split[1])))
+        name += threshold
+        name_split = name.split(',')
+        csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
