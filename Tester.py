@@ -236,9 +236,9 @@ from pathlib import Path
 import pandas as pd
 folder = '/home/nottom/Documents/LinuxProject/first_model/output1'
 os.chdir('/home/nottom/Documents/LinuxProject/first_model/output1')
-with open('model_predictions.csv', 'w') as out_file:
+with open('20170512_model_predictions.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
-    column_names = ['Filename', 'Prediction', 'thresholded', 'label']
+    column_names = ['filename', 'prediction', 'thresholded', 'label']
     writer = csv.DictWriter(out_file, fieldnames=column_names)
     writer.writeheader()
     # csv_out.writerow(['FileName', 'Content'])
@@ -253,4 +253,7 @@ with open('model_predictions.csv', 'w') as out_file:
         threshold = "," + str(round(float(name_split[1])))
         name += threshold
         name_split = name.split(',')
-        csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
+        # print(name_split[0][17:25])
+        if (name_split[0][17:25]) == "20170512":
+            csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
+            # print(name_split[0])
