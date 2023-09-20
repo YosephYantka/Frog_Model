@@ -16,7 +16,8 @@ import wandb
 import random
 from torch import tensor
 from torchmetrics.classification import BinaryAccuracy
-
+from torchmetrics.classification import BinaryPrecision
+from torchmetrics.classification import BinaryRecall
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
@@ -195,11 +196,13 @@ optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=w
 
 # evaluate model on test dataset:
 def test(model, device, test_loader):
-        model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_10.pt"))
+        model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_5.pt"))
         model.eval()
         test_loss = 0
         correct = 0
         running_accuracy = 0
+        running_precision = 0
+        running_recall = 0
         with torch.no_grad():
             for images, labels, filenames in test_loader:
                 images = images.to(device).type(torch.float) / 255
@@ -212,20 +215,30 @@ def test(model, device, test_loader):
                 # forward pass
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)
-                metric = BinaryAccuracy(threshold=0.5).to(device)
-                accuracy = metric(outputs, labels)
+
+                # torch metrics
+                metric1 = BinaryAccuracy(threshold=0.5).to(device)
+                accuracy = metric1(outputs, labels)
+                metric2 = BinaryPrecision(threshold=0.5).to(device)
+                precision = metric2(outputs, labels)
+                metric3 = BinaryRecall(threshold=0.5).to(device)
+                recall = metric3(outputs, labels)
+
+                loss = criterion(outputs, labels)
                 running_accuracy += accuracy
+                running_precision += precision
+                running_recall += recall
 
                 # output filenames, predicted, labels
                 for data in range(batch_size):
-                    with open('/home/nottom/Documents/LinuxProject/first_model/output1/' + str(filenames[data]) + '.txt',
+                    with open('/home/nottom/Documents/LinuxProject/first_model/output2/' + str(filenames[data]) + '.txt',
                           'x') as f:
                         f.write(str(filenames[data]))
                         f.write("," + str(outputs[data])[7:16])
                         f.write(str(labels[data])[7:12])
 
-        print('Epoch: {}, Test set: Accuracy: {} %'.format(x,accuracy*100))
-        print('Epoch: (), total running accuracy:{}, averaged running accuracy: {}'.format(x, running_accuracy, running_accuracy / 171))
+        print('TEST SET: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(
+            running_accuracy / 100, loss.item(), running_precision / 100, running_recall / 100))
 
 test(model, 'cuda', test_loader)
 
@@ -234,9 +247,9 @@ import os
 import csv
 from pathlib import Path
 import pandas as pd
-folder = '/home/nottom/Documents/LinuxProject/first_model/output1'
-os.chdir('/home/nottom/Documents/LinuxProject/first_model/output1')
-with open('20170512_model_predictions.csv', 'w') as out_file:
+folder = '/home/nottom/Documents/LinuxProject/first_model/output2'
+os.chdir('/home/nottom/Documents/LinuxProject/first_model/output2')
+with open('20170512_predictions.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
     column_names = ['filename', 'prediction', 'thresholded', 'label']
     writer = csv.DictWriter(out_file, fieldnames=column_names)
@@ -253,7 +266,7 @@ with open('20170512_model_predictions.csv', 'w') as out_file:
         threshold = "," + str(round(float(name_split[1])))
         name += threshold
         name_split = name.split(',')
-        # print(name_split[0][17:25])
-        if (name_split[0][17:25]) == "20170512":
-            csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
+        # print(name_split[0][19:27])
+        if (name_split[0][19:27]) == "20170512":
+        csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
             # print(name_split[0])

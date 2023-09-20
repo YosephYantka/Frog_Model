@@ -16,6 +16,8 @@ import wandb
 import random
 from torch import tensor
 from torchmetrics.classification import BinaryAccuracy
+from torchmetrics.classification import BinaryPrecision
+from torchmetrics.classification import BinaryRecall
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -237,6 +239,8 @@ for epoch in tqdm(range(1, num_epochs+1), desc='epochs', unit='epoch '): #change
         correct = 0
         total = 0
         running_accuracy = 0
+        running_precision = 0
+        running_recall = 0
         for images, labels, filenames in valid_loader:
             images = images.to(device).type(torch.float) / 255
             labels = labels.type(torch.float).to(device)
@@ -247,18 +251,25 @@ for epoch in tqdm(range(1, num_epochs+1), desc='epochs', unit='epoch '): #change
             # forward pass
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
-            metric = BinaryAccuracy(threshold=0.5).to(device)
-            accuracy = metric(outputs, labels)
 
-            running_accuracy += accuracy
+            #torch metrics
+            metric1 = BinaryAccuracy(threshold=0.5).to(device)
+            accuracy = metric1(outputs, labels)
+            metric2 = BinaryPrecision(threshold=0.5).to(device)
+            precision = metric2(outputs, labels)
+            metric3 = BinaryRecall(threshold=0.5).to(device)
+            recall = metric3(outputs, labels)
+
             loss = criterion(outputs, labels)
+            running_accuracy += accuracy
+            running_precision += precision
+            running_recall += recall
 
-        print('Accuracy of the model on validation images: {} %, loss of model on validation images: {:.4f}'.format(
-            accuracy * 100, loss.item()))
-        print('total running accuracy:{}, averaged running accuracy: {}'.format(running_accuracy, running_accuracy / 171))
+        print('VALIDATION: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(
+            running_accuracy / 171, loss.item(), running_precision / 171, running_recall / 171, ))
         checkpoint(model, f"model_version_epoch_{epoch}.pt")
 
-torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/first_model/first_model_version.pt")
+torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/first_model/model_precision_recall.pt")
 
 # # evaluate model on test dataset:
 # def test(model, device, test_loader):

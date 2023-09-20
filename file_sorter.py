@@ -16,7 +16,7 @@ from random import sample
 import os
 
 #for finding incorrectly labelled text files in label directory :
-folder = '/home/nottom/Documents/LinuxProject/first_model/text_directories/text_dir_test'
+folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_textfiles'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     f = open(join_path, 'r')
@@ -26,7 +26,7 @@ for file in os.listdir(folder):
         print(content)
 
 # use this to check if all images are the same size (THEY AREN'T)
-folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/notata'
+folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_spectrograms'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     img = PIL.Image.open(join_path)

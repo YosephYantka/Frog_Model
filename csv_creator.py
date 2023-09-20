@@ -3,18 +3,18 @@ import os
 import csv
 
 # This code will transform all the one hot encoding values to a single integer
-folder = '/home/nottom/Documents/LinuxProject/first_model/text_dir_test'
+folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_textfiles'
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     reader = open(join_path, 'r')
     content = reader.read()
-    print(content)
+    # print(content)
     if file.endswith("1_.txt"):
          writer = open(join_path, 'w')
          writer.write("2")
-    # if file.endswith("0_.txt")
-    #      writer = open(join_path, 'w')
-    #      writer.write("1")
+    if file.endswith("0_.txt"):
+         writer = open(join_path, 'w')
+         writer.write("1")
 
 
 # in case I need to switch values to binary
@@ -52,9 +52,9 @@ for file in os.listdir(folder):
 import os
 import csv
 from pathlib import Path
-folder = '/home/nottom/Documents/LinuxProject/first_model/text_directories/text_dir_test'
-os.chdir('/home/nottom/Documents/LinuxProject/first_model/text_directories/text_dir_test')
-with open('annotations_file_test.csv', 'w') as out_file:
+folder = '/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST'
+os.chdir('/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST')
+with open('annotations_file_training.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
     # csv_out.writerow(['FileName', 'Content'])
     for fileName in Path('.').glob('*.txt'):
