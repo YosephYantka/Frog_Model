@@ -18,10 +18,12 @@ from torch import tensor
 from torchmetrics.classification import BinaryAccuracy
 from torchmetrics.classification import BinaryPrecision
 from torchmetrics.classification import BinaryRecall
+
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 os.chdir('/home/nottom/Documents/LinuxProject/first_model')
+
 
 # #initiate wandb
 # wandb.init(
@@ -153,7 +155,7 @@ class VGG16(nn.Module):
         out = out.reshape(out.size(0), -1)
         out = self.fc(out)
         out = self.fc1(out)
-        out = self.fc2(out)#.sigmoid()
+        out = self.fc2(out)  # .sigmoid()
         out = self.sigmoid(out)
         return out
 
@@ -163,10 +165,11 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
+
 # Hyperparameters and weight initialisation
 
 num_classes = 1
-num_epochs = 10 #I changed this to 11 to solve error at 'for epoch' line
+num_epochs = 10  # I changed this to 11 to solve error at 'for epoch' line
 batch_size = 32
 learning_rate = 0.001
 momentum = 0.9
@@ -195,14 +198,19 @@ criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
 
 # evaluate model on test dataset:
+numbers = (4, 6, 8)
 def test(model, device, test_loader):
-        model.load_state_dict(torch.load("/home/nottom/Documents/LinuxProject/first_model/model_version_epoch_5.pt"))
+    for x in numbers:
+        model.load_state_dict(
+            torch.load("/home/nottom/Documents/LinuxProject/first_model/second_model_version_epoch_" + str(x) + ".pt"))
+        # # model.load_state_dict( torch.load("/home/nottom/Documents/LinuxProject/first_model/second_model_version_epoch_4.pt")
         model.eval()
         test_loss = 0
         correct = 0
         running_accuracy = 0
         running_precision = 0
         running_recall = 0
+        threshold = 0.9
         with torch.no_grad():
             for images, labels, filenames in test_loader:
                 images = images.to(device).type(torch.float) / 255
@@ -217,11 +225,11 @@ def test(model, device, test_loader):
                 _, predicted = torch.max(outputs.data, 1)
 
                 # torch metrics
-                metric1 = BinaryAccuracy(threshold=0.5).to(device)
+                metric1 = BinaryAccuracy(threshold=threshold).to(device)
                 accuracy = metric1(outputs, labels)
-                metric2 = BinaryPrecision(threshold=0.5).to(device)
+                metric2 = BinaryPrecision(threshold=threshold).to(device)
                 precision = metric2(outputs, labels)
-                metric3 = BinaryRecall(threshold=0.5).to(device)
+                metric3 = BinaryRecall(threshold=threshold).to(device)
                 recall = metric3(outputs, labels)
 
                 loss = criterion(outputs, labels)
@@ -229,44 +237,49 @@ def test(model, device, test_loader):
                 running_precision += precision
                 running_recall += recall
 
-                # output filenames, predicted, labels
-                for data in range(batch_size):
-                    with open('/home/nottom/Documents/LinuxProject/first_model/output2/' + str(filenames[data]) + '.txt',
-                          'x') as f:
-                        f.write(str(filenames[data]))
-                        f.write("," + str(outputs[data])[7:16])
-                        f.write(str(labels[data])[7:12])
+                # # output filenames, predicted, labels
+                # for data in range(batch_size):
+                #     with open('/home/nottom/Documents/LinuxProject/second_model/output/' + str(filenames[data]) + '.txt',
+                #           'x') as f:
+                #         f.write(str(filenames[data]))
+                #         f.write("," + str(outputs[data])[7:16])
+                #         f.write(str(labels[data])[7:12])
 
-        print('TEST SET: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(
-            running_accuracy / 100, loss.item(), running_precision / 100, running_recall / 100))
+        print('EPOCH: {}, threshold {}, - TEST SET: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(x,
+                                                                                                   threshold,
+                                                                                                   running_accuracy / 100,
+                                                                                                   loss.item(),
+                                                                                                   running_precision / 100,
+                                                                                                   running_recall / 100))
+
 
 test(model, 'cuda', test_loader)
-
-# successfully constructed a csv output!!
-import os
-import csv
-from pathlib import Path
-import pandas as pd
-folder = '/home/nottom/Documents/LinuxProject/first_model/output2'
-os.chdir('/home/nottom/Documents/LinuxProject/first_model/output2')
-with open('20170512_predictions.csv', 'w') as out_file:
-    csv_out = csv.writer(out_file)
-    column_names = ['filename', 'prediction', 'thresholded', 'label']
-    writer = csv.DictWriter(out_file, fieldnames=column_names)
-    writer.writeheader()
-    # csv_out.writerow(['FileName', 'Content'])
-    for fileName in Path('.').glob('*.txt'):
-        # lala = fileName
-        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
-        name = open(str(fileName.absolute())).read()
-        name = name.replace('[', '')
-        name = name.replace(']', '')
-        name = name[:-2]
-        name_split = name.split(',')
-        threshold = "," + str(round(float(name_split[1])))
-        name += threshold
-        name_split = name.split(',')
-        # print(name_split[0][19:27])
-        if (name_split[0][19:27]) == "20170512":
-        csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
-            # print(name_split[0])
+#
+# # successfully constructed a csv output!!
+# import os
+# import csv
+# from pathlib import Path
+# import pandas as pd
+# folder = '/home/nottom/Documents/LinuxProject/second_model/output'
+# os.chdir('/home/nottom/Documents/LinuxProject/second_model/output')
+# with open('second_model_predictions.csv', 'w') as out_file:
+#     csv_out = csv.writer(out_file)
+#     column_names = ['filename', 'prediction', 'thresholded', 'label']
+#     writer = csv.DictWriter(out_file, fieldnames=column_names)
+#     writer.writeheader()
+#     # csv_out.writerow(['FileName', 'Content'])
+#     for fileName in Path('.').glob('*.txt'):
+#         # lala = fileName
+#         # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
+#         name = open(str(fileName.absolute())).read()
+#         name = name.replace('[', '')
+#         name = name.replace(']', '')
+#         name = name[:-2]
+#         name_split = name.split(',')
+#         threshold = "," + str(round(float(name_split[1]))) #edit if outputting csv and not using 0.5 as threshold!!!
+#         name += threshold
+#         name_split = name.split(',')
+#         # print(name_split[0][15:23])
+#         # if (name_split[0][15:23]) == "20210723":
+#         csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
+#             # print(name_split[0])

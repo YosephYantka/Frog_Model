@@ -2,6 +2,21 @@
 import os
 import csv
 
+#this file will create a csv from all text files
+import os
+import csv
+from pathlib import Path
+folder = '/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST'
+os.chdir('/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST')
+with open('annotations_file_training.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    # csv_out.writerow(['FileName', 'Content'])
+    for fileName in Path('.').glob('*.txt'):
+        # lala = fileName
+        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
+        csv_out.writerow([str(fileName.with_suffix('.png')), open(str(fileName.absolute())).read().strip()])
+
+
 # This code will transform all the one hot encoding values to a single integer
 folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_textfiles'
 for file in os.listdir(folder):
@@ -11,10 +26,10 @@ for file in os.listdir(folder):
     # print(content)
     if file.endswith("1_.txt"):
          writer = open(join_path, 'w')
-         writer.write("2")
+         writer.write("1")
     if file.endswith("0_.txt"):
          writer = open(join_path, 'w')
-         writer.write("1")
+         writer.write("0")
 
 
 # in case I need to switch values to binary
@@ -31,7 +46,7 @@ for file in os.listdir(folder):
          writer = open(join_path, 'w')
          writer.write("1")
 
-# This code will remove all segments that aren't of uniform size
+# This code will remove all segments that aren't of uniform size from spectrograms
 folder = '/home/nottom/Documents/LinuxProject/first_model/valid_text' # make sure to do both training and validation text directories
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
@@ -40,6 +55,7 @@ for file in os.listdir(folder):
     if file[0:4] == '3594':
         os.unlink(join_path)
 
+#this code will remove all segments that aren't of uniform size from text_files
 folder = '/home/nottom/Documents/LinuxProject/first_model/img_dir_valid' # make sure to do both training and validation image directories
 for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
@@ -48,19 +64,6 @@ for file in os.listdir(folder):
     if file[0:4] == '3594':
         os.unlink(join_path)
 
-#this file will create a csv from all text files
-import os
-import csv
-from pathlib import Path
-folder = '/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST'
-os.chdir('/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST')
-with open('annotations_file_training.csv', 'w') as out_file:
-    csv_out = csv.writer(out_file)
-    # csv_out.writerow(['FileName', 'Content'])
-    for fileName in Path('.').glob('*.txt'):
-        # lala = fileName
-        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
-        csv_out.writerow([str(fileName.with_suffix('.png')), open(str(fileName.absolute())).read().strip()])
 
 
 

@@ -24,18 +24,18 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 os.chdir('/home/nottom/Documents/LinuxProject/first_model')
 
-# #initiate wandb
-# wandb.init(
-#     # set the wandb project where this run will be logged
-#     project="frog_model_binary",
-#     # track hyperparameters and run metadata
-#     config={
-#     "learning_rate": 0.001,
-#     "architecture": "CNN",
-#     "dataset": "notata_background",
-#     "epochs": 10,
-#     }
-# )
+#initiate wandb
+wandb.init(
+    # set the wandb project where this run will be logged
+    project="second_frog_model_binary",
+    # track hyperparameters and run metadata
+    config={
+    "learning_rate": 0.001,
+    "architecture": "CNN",
+    "dataset": "notata_background",
+    "epochs": 10,
+    }
+)
 
 # The dataloader:
 class FrogLoaderDataset(Dataset):
@@ -174,18 +174,18 @@ momentum = 0.9
 weight_decay = 0.005
 
 training_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_training.csv',
-    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_training_LATEST')
+    annotations_file='/home/nottom/Documents/LinuxProject/second_model/annotations_file_training.csv',
+    img_dir='/home/nottom/Documents/LinuxProject/second_model/img_dir_training_LATEST')
 train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
 
 valid_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_valid.csv',
-    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_valid')
+    annotations_file='/home/nottom/Documents/LinuxProject/second_model/annotations_file_valid.csv',
+    img_dir='/home/nottom/Documents/LinuxProject/second_model/img_dir_valid')
 valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=False)
 
 test_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_test.csv',
-    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_test')
+    annotations_file='/home/nottom/Documents/LinuxProject/second_model/annotations_file_test.csv',
+    img_dir='/home/nottom/Documents/LinuxProject/second_model/img_dir_test')
 test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
 model = VGG16(num_classes).to(device)
@@ -201,13 +201,13 @@ def checkpoint(model, filename):
 
 # Training the model:
 total_step = len(train_loader)
-# offset = random.random() / 5  #wandbstuff
+offset = random.random() / 5  #wandbstuff
 
 for epoch in tqdm(range(1, num_epochs+1), desc='epochs', unit='epoch '): #changed range to solve "division by zero error in line below)
     counter = 0
-    # acc = 1 - 2 ** -epoch - random.random() / epoch - offset #wandb stuff
-    # loss = 2 ** -epoch + random.random() / epoch + offset #wandb stuff
-    # wandb.log({"acc": acc, "loss": loss})
+    acc = 1 - 2 ** -epoch - random.random() / epoch - offset #wandb stuff
+    loss = 2 ** -epoch + random.random() / epoch + offset #wandb stuff
+    wandb.log({"acc": acc, "loss": loss}) #wandb stuff
     for i, (images, labels, filenames) in enumerate(train_loader):
         # Move tensors to the configured device
         images = images.to(device).type(torch.float) / 255
@@ -267,9 +267,9 @@ for epoch in tqdm(range(1, num_epochs+1), desc='epochs', unit='epoch '): #change
 
         print('VALIDATION: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(
             running_accuracy / 171, loss.item(), running_precision / 171, running_recall / 171, ))
-        checkpoint(model, f"model_version_epoch_{epoch}.pt")
+        checkpoint(model, f"second_model_version_epoch {epoch}.pt")
 
-torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/first_model/model_precision_recall.pt")
+torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/second_model/second_model.pt")
 
 # # evaluate model on test dataset:
 # def test(model, device, test_loader):

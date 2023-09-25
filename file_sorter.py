@@ -21,7 +21,7 @@ for file in os.listdir(folder):
     join_path = os.path.join(folder, file)
     f = open(join_path, 'r')
     content = f.read()
-    if content != '1' and content != '2':
+    if content != '0' and content != '1': # and content != '2' and content != '3' and content != '4' and content != '5' and content != '6'
         print(file)
         print(content)
 
@@ -38,22 +38,6 @@ for file in os.listdir(folder):
     # if height != 128:
     #     print(file)
 
-# This code will remove all segments that aren't of uniform size
-folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms' # make sure to do both training and validation text directories
-for file in os.listdir(folder):
-    join_path = os.path.join(folder, file)
-    if file.startswith('3591'):
-        os.unlink(join_path)
-    if file.startswith("3594"):
-        os.unlink(join_path)
-
-folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/notata' # make sure to do both training and validation image directories
-for file in os.listdir(folder):
-    join_path = os.path.join(folder, file)
-    if file.startswith('3591'):
-        os.unlink(join_path)
-    if file.startswith('3594'):
-        os.unlink(join_path)
 
 #For creating balanced datasets - culls total background directory and creates a corresponding text directory
 #culling
@@ -82,40 +66,12 @@ for file in os.listdir(folder):
             f.write("2") #1 and 2 are necessary for this code to work with current VGG16 structure
 
 
-
-folder = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training_LATEST'
-
-for file in os.listdir(folder):
-    join_path = os.path.join(folder, file)
-    f = open(join_path, 'r')
-    original = '/home/nottom/Documents/LinuxProject/first_model/backups/img_dir_training_LATEST/' + file
-    destination = '/home/nottom/Documents/LinuxProject/first_model/backups/total_background_files/' + file
-    if file.endswith('_0_.png'):
-        shutil.move(original, destination)
-
-x = 0
-for file in os.listdir(folder):
-    join_path = os.path.join(folder, file)
-    f = open(join_path, 'r')
-    if file.endswith('_0_.png'):
-        # print(file)
-        x = x + 1
-print(x)
-
-
-
-
 #file deleter - CURSED
 folder = '/home/nottom/Documents/LinuxProject/first_model/training_data_text'
 for filename in os.listdir(folder):
     file_path = os.path.join(folder, filename)
     if filename.endswith('.png'):
         os.unlink(file_path)
-
-
-
-
-
 
 #THIS ONE WORKEDDDD - for sorting files in one folder into a number of smaller files based on filename
 for file in os.listdir(folder):

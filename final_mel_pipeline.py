@@ -10,6 +10,7 @@ import matplotlib
 import librosa
 import matplotlib.pyplot as plt
 import os
+import PIL
 import shutil
 from tqdm import tqdm
 
@@ -117,8 +118,7 @@ def save_spectrogram(specgram, title=None, ylabel="freq_bin"):
     # plt.savefig("/home/nottom/Documents/LinuxProject/specgrams/" + str(title) + '.png')
     # plt.close()
     spec = librosa.power_to_db(specgram)
-    plt.imsave("/home/nottom/Documents/LinuxProject/specgrams/" + str(title) + '.png', spec)
-
+    plt.imsave("/home/nottom/Documents/LinuxProject/specgrams_raw/" + str(title) + '.png', spec)
 
 #iterate through each file in the chunk folder
 directory = chunk_folder
@@ -153,6 +153,13 @@ for file in os.listdir(chunk_folder):
     x = x + 3
     y = y + 3
 
+#convert to greyscale:
+folder = '/home/nottom/Documents/LinuxProject/specgrams_raw'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    image = PIL.Image.open(join_path).convert("L")
+    image.save('/home/nottom/Documents/LinuxProject/specgrams/' + file)
+
 #input a 1 for background chunks in text_files:
 for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
@@ -162,26 +169,37 @@ for file in os.listdir(text_files):
         with open('/home/nottom/Documents/LinuxProject/text_files/' + file, 'w') as f:
             f.write(str('1, 0, 0, 0'))
 
-#move spectrograms into folders based on class:
-for file in os.listdir(text_files):
-    join_path = os.path.join(text_files, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    filename = str(file[0:-4])
-    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/spectrograms/notata/' + filename + '_1_.png'
+# This code will transform all the one hot encoding values to a single integer
+folder = '/home/nottom/Documents/LinuxProject/text_files'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    reader = open(join_path, 'r')
+    content = reader.read()
+    # print(content)
     if content == '0, 1, 0, 0':
-        shutil.move(original, destination)
-
-for file in os.listdir(text_files):
-    join_path = os.path.join(text_files, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    filename = str(file[0:-4])
-    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/spectrograms/background/' + filename + '_0_.png'
+         writer = open(join_path, 'w')
+         writer.write("1")
     if content == '1, 0, 0, 0':
-        shutil.move(original, destination)
+         writer = open(join_path, 'w')
+         writer.write("0")
+
+# This code will remove all segments that aren't of uniform size from spectrograms
+folder = '/home/nottom/Documents/LinuxProject/specgrams'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    if file.startswith('3591'):
+        os.unlink(join_path)
+    if file[0:4] == '3594':
+        os.unlink(join_path)
+
+#this code will remove all segments that aren't of uniform size from text_files
+folder = '/home/nottom/Documents/LinuxProject/text_files'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    if file.startswith('3591'):
+        os.unlink(join_path)
+    if file[0:4] == '3594':
+        os.unlink(join_path)
 
 #move text files into folders based on class:
 for file in os.listdir(text_files):
@@ -191,7 +209,7 @@ for file in os.listdir(text_files):
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
     destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/text_files/notata/' + filename + '_1_.txt'
-    if content == '0, 1, 0, 0':
+    if content == '1':
         shutil.move(original, destination)
 
 for file in os.listdir(text_files):
@@ -201,9 +219,29 @@ for file in os.listdir(text_files):
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
     destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/text_files/background/' + filename + '_0_.txt'
-    if content == '1, 0, 0, 0':
+    if content == '0':
         shutil.move(original, destination)
 
+#move spectrograms into folders based on class:
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/spectrograms/notata/' + filename + '_1_.png'
+    if content == '1':
+        shutil.move(original, destination)
+
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/training_data_new/Additional_training_data/' + label_without_txt + '/spectrograms/background/' + filename + '_0_.png'
+    if content == '0':
+        shutil.move(original, destination)
 
 #clear contents of all folders that need clearing
 
@@ -239,3 +277,14 @@ for filename in os.listdir(folder):
             shutil.rmtree(file_path)
     except Exception as e:
         print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+print("incorrectly labelled spectrograms are:")
+#for finding incorrectly labelled text files in label directory :
+folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_textfiles' #todo put directories of spectrograms and text files (will need to paste this code a few times)
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    if content != '0' and content != '1': # and content != '2' and content != '3' and content != '4' and content != '5' and content != '6'
+        print(file)
+        print(content)
