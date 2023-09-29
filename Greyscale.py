@@ -41,6 +41,3 @@ files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/backups/img_
 for file in sample(files,12745):
     path = os.path.join(folder, file)
     os.unlink(path)
-
-for x in range(0, 33):
-    print(x)
