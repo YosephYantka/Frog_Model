@@ -6,17 +6,20 @@ import csv
 import os
 import csv
 from pathlib import Path
-folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
-os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
-with open('annotations_file_training.csv', 'w') as out_file:
-    csv_out = csv.writer(out_file)
-    # csv_out.writerow(['FileName', 'Content'])
-    for file in Path('.').glob('*.txt'):
-        join_path = os.path.join(folder, file)
-        reader = open(join_path, 'r')
-        content = reader.read()
-        csv_out.writerow([str(file.with_suffix('.png')), open(str(file.absolute())).read().strip()])
 
+# THIS IS THE OLD CODE FOR THE BINARY MODEL
+# folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
+# os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
+# with open('annotations_file_training.csv', 'w') as out_file:
+#     csv_out = csv.writer(out_file)
+#     # csv_out.writerow(['FileName', 'Content'])
+#     for file in Path('.').glob('*.txt'):
+#         join_path = os.path.join(folder, file)
+#         reader = open(join_path, 'r')
+#         content = reader.read()
+#         csv_out.writerow([str(file.with_suffix('.png')), open(str(file.absolute())).read().strip()])
+
+#THIS IS THE CURRENT CODE FOR THE MULTILABEL MODEL
 folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
 os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
 with open('annotations_file_training.csv', 'w') as out_file:
