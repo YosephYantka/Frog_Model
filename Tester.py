@@ -283,3 +283,4 @@ test(model, 'cuda', test_loader)
 #         # if (name_split[0][15:23]) == "20210723":
 #         csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
 #             # print(name_split[0])
+

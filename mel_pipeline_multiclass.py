@@ -21,7 +21,7 @@ matplotlib.use('qt5agg')
 torch.random.manual_seed(0)
 
 # set file and folder(s)
-audacity_labels = '/home/nottom/Desktop/fake_labels_60_seconds.txt' #ALTER
+audacity_labels = '/home/nottom/Desktop/fake_labels.txt' #ALTER
 chunk_file_raw = 'BAR4_20210723_080000.wav' #ALTER
 chunk_folder = '/home/nottom/Documents/LinuxProject/chunks'
 text_files = '/home/nottom/Documents/LinuxProject/text_files'
@@ -61,7 +61,7 @@ class SplitWavAudioMubin():
 
 split_wav = SplitWavAudioMubin(chunk_folder, chunk_file_raw)
 split_wav.multiple_split(sec_per_split=4)
-# os.remove('/home/nottom/Documents/LinuxProject/chunks/' + chunk_file_raw) # TODO: REMEMBER TO REACTIVATE THIS
+os.remove('/home/nottom/Documents/LinuxProject/chunks/' + chunk_file_raw)
 
 
 # for creating list of all annotations
@@ -80,6 +80,9 @@ def split(list_a, chunk_size):
 
 chunk_size = 5
 annotations_list = list(split(mylist, chunk_size))
+for x in annotations_list:
+    if x[2] == 0:
+        x[2] = 1.0
 
 # create list of fours using length of recording
 duration = split_wav.duration
@@ -104,7 +107,7 @@ for chunk in annotation:
     name = str(x) + '_' + str(y) + '_' + filename
     encoding = chunk.tolist()
     encoding = [int(x) for x in encoding]
-    encoding_string = f'{encoding[0]}, {encoding[1]}, {encoding[2]}, {encoding[3]}, {encoding[4]}, {encoding[5]}, {encoding[6]}, {encoding[7]}'
+    encoding_string = f'{encoding[7]}, {encoding[1]}, {encoding[2]}, {encoding[3]}, {encoding[4]}, {encoding[5]}, {encoding[6]}'
     with open('/home/nottom/Documents/LinuxProject/text_files/' + name + '.txt', 'x') as f:
         f.write(encoding_string)
     x +=  3
@@ -155,14 +158,14 @@ for file in os.listdir(chunk_folder):
     x = x + 3
     y = y + 3
 
-#input a 1 for background chunks in text_files:
-for file in os.listdir(text_files):
-    join_path = os.path.join(text_files, file)
-    f = open(join_path, 'r')
-    content = f.read()
-    if content == '0, 0, 0, 0, 0, 0, 0, 0':
-        with open('/home/nottom/Documents/LinuxProject/training_data_2009/text/' + file, 'w') as f:
-            f.write(str('1, 0, 0, 0, 0, 0, 0, 0'))
+# #input a 1 for background chunks in text_files:
+# for file in os.listdir(text_files):
+#     join_path = os.path.join(text_files, file)
+#     f = open(join_path, 'r')
+#     content = f.read()
+#     if content == '0, 0, 0, 0, 0, 0, 0, 0':
+#         with open('/home/nottom/Documents/LinuxProject/training_data_2009/text/' + file, 'w') as f:
+#             f.write(str('1, 0, 0, 0, 0, 0, 0, 0'))
 
 # This code will remove all segments that aren't of uniform size from spectrograms
 folder = '/home/nottom/Documents/LinuxProject/specgrams'
@@ -198,44 +201,116 @@ for file in os.listdir(text_files):
     filename = str(file[0:-4])
     original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
     destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/0/' + filename + '_0_.png'
-    # print(content[6])
     if (content[0]) == '1':
-        # print(file)
+        shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/0/' + filename + '_0_.png.txt'
+    if (content[0]) == '1':
         shutil.move(original, destination)
 
+# class 1
 for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
     f = open(join_path, 'r')
     content = f.read()
     filename = str(file[0:-4])
-    original = '/home/nottom/Documents/LinuxProject/training_data_2009/images/' + filename + '.wav.png'
-    destination = '/home/nottom/Documents/LinuxProject/training_data_2009/specgrams/background/' + filename + '_0_.png'
-    if content == '0, 0, 1, 0':
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/1/' + filename + '_1_.png'
+    if (content[3]) == '1':
+        shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/1/' + filename + '_1_.png.txt'
+    if (content[3]) == '1':
         shutil.move(original, destination)
 
-#move text files into folders based on class:
+# class 2
 for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
     f = open(join_path, 'r')
     content = f.read()
     filename = str(file[0:-4])
-    original = '/home/nottom/Documents/LinuxProject/training_data_2009/text/' + filename + '.txt'
-    destination = '/home/nottom/Documents/LinuxProject/training_data_2009/text_files/notata/' + filename + '_1_.txt'
-    if content == '0, 1, 0, 0':
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/2/' + filename + '_2_.png'
+    if (content[6]) == '1':
+        shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/2/' + filename + '_2_.png.txt'
+    if (content[6]) == '1':
         shutil.move(original, destination)
 
+# class 3
 for file in os.listdir(text_files):
     join_path = os.path.join(text_files, file)
     f = open(join_path, 'r')
     content = f.read()
     filename = str(file[0:-4])
-    original = '/home/nottom/Documents/LinuxProject/training_data_2009/text/' + filename + '.txt'
-    destination = '/home/nottom/Documents/LinuxProject/training_data_2009/text_files/background/' + filename + '_0_.txt'
-    if content == '0, 0, 1, 0':
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/3/' + filename + '_3_.png'
+    if (content[9]) == '1':
         shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/3/' + filename + '_3_.png.txt'
+    if (content[9]) == '1':
+        shutil.move(original, destination)
+# class 4
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/4/' + filename + '_4_.png'
+    if (content[12]) == '1':
+        shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/4/' + filename + '_4_.png.txt'
+    if (content[12]) == '1':
+        shutil.move(original, destination)
+# class 5
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/5/' + filename + '_5_.png'
+    if (content[15]) == '1':
+        shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/5/' + filename + '_5_.png.txt'
+    if (content[15]) == '1':
+        shutil.move(original, destination)
+# class 6
+for file in os.listdir(text_files):
+    join_path = os.path.join(text_files, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    filename = str(file[0:-4])
+    original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/6/' + filename + '_6_.png'
+    if (content[18]) == '1':
+        shutil.move(original, destination)
+    original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+    destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/6/' + filename + '_6_.png.txt'
+    if (content[18]) == '1':
+        shutil.move(original, destination)
+# # class 7 - don't need this if doing six species
+# for file in os.listdir(text_files):
+#     join_path = os.path.join(text_files, file)
+#     f = open(join_path, 'r')
+#     content = f.read()
+#     filename = str(file[0:-4])
+#     original = '/home/nottom/Documents/LinuxProject/specgrams/' + filename + '.wav.png'
+#     destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/specgrams/7/' + filename + '_7_.png'
+#     if (content[21]) == '1':
+#         shutil.move(original, destination)
+#     original = '/home/nottom/Documents/LinuxProject/text_files/' + filename + '.txt'
+#     destination = '/home/nottom/Documents/LinuxProject/multi_class_model/training_data/text/7/' + filename + '_7_.png.txt'
+#     if (content[21]) == '1':
+#         shutil.move(original, destination)
 
 #clear contents of all folders that need clearing
-folder = '/home/nottom/Documents/LinuxProject/training_data_2009/chunks'
+folder = '/home/nottom/Documents/LinuxProject/chunks'
 for filename in os.listdir(folder):
     file_path = os.path.join(folder, filename)
     try:
@@ -246,31 +321,29 @@ for filename in os.listdir(folder):
     except Exception as e:
         print('Failed to delete %s. Reason: %s' % (file_path, e))
 
-# folder = '/home/nottom/Documents/LinuxProject/training_data_2009/text'
-# for filename in os.listdir(folder):
-#     file_path = os.path.join(folder, filename)
-#     try:
-#         if os.path.isfile(file_path) or os.path.islink(file_path):
-#             os.unlink(file_path)
-#         elif os.path.isdir(file_path):
-#             shutil.rmtree(file_path)
-#     except Exception as e:
-#         print('Failed to delete %s. Reason: %s' % (file_path, e))
+folder = '/home/nottom/Documents/LinuxProject/text_files'
+for filename in os.listdir(folder):
+    file_path = os.path.join(folder, filename)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
 
-# folder = '/home/nottom/Documents/LinuxProject/specgrams'
-# for filename in os.listdir(folder):
-#     file_path = os.path.join(folder, filename)
-#     try:
-#         if os.path.isfile(file_path) or os.path.islink(file_path):
-#             os.unlink(file_path)
-#         elif os.path.isdir(file_path):
-#             shutil.rmtree(file_path)
-#     except Exception as e:
-#         print('Failed to delete %s. Reason: %s' % (file_path, e))
+folder = '/home/nottom/Documents/LinuxProject/specgrams'
+for filename in os.listdir(folder):
+    file_path = os.path.join(folder, filename)
+    try:
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (file_path, e))
 
-#clear contents of all folders that need clearing
-
-folder = '/home/nottom/Documents/LinuxProject/training_data_2009/chunks'
+folder = '/home/nottom/Documents/LinuxProject/specgrams_raw'
 for filename in os.listdir(folder):
     file_path = os.path.join(folder, filename)
     try:

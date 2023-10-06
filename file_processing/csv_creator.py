@@ -6,16 +6,27 @@ import csv
 import os
 import csv
 from pathlib import Path
-folder = '/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST'
-os.chdir('/home/nottom/Documents/LinuxProject/second_model/text_directories/text_dir_training_LATEST')
+folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
+os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
 with open('annotations_file_training.csv', 'w') as out_file:
     csv_out = csv.writer(out_file)
     # csv_out.writerow(['FileName', 'Content'])
-    for fileName in Path('.').glob('*.txt'):
-        # lala = fileName
-        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
-        csv_out.writerow([str(fileName.with_suffix('.png')), open(str(fileName.absolute())).read().strip()])
+    for file in Path('.').glob('*.txt'):
+        join_path = os.path.join(folder, file)
+        reader = open(join_path, 'r')
+        content = reader.read()
+        csv_out.writerow([str(file.with_suffix('.png')), open(str(file.absolute())).read().strip()])
 
+folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
+os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
+with open('annotations_file_training.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    # csv_out.writerow(['FileName', 'Content'])
+    for file in Path('.').glob('*.txt'):
+        join_path = os.path.join(folder, file)
+        reader = open(join_path, 'r')
+        content = reader.read()
+        csv_out.writerow([str(file.with_suffix('')), content[0], content[3], content[6], content[9], content[12], content[15], content[18]])
 
 # This code will transform all the one hot encoding values to a single integer
 folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_textfiles'

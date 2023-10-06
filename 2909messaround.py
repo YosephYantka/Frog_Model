@@ -63,7 +63,7 @@ class FrogLoaderDataset(Dataset):
 
 # borrowed VGG16 model structure
 class VGG16(nn.Module):
-    def __init__(self, num_classes=2):
+    def __init__(self, num_classes):
         super(VGG16, self).__init__()
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1),
