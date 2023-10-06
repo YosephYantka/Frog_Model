@@ -21,52 +21,112 @@ for file in glob.glob('/media/nottom/TOSHIBA EXT/2021/Hides/**/*.wav', recursive
     if len(file) == 128:
         os.renames(file, file[:-27] + '.wav')
 
+
 #code for renaming 2021 files to include metadata
+#todo: TRIAL THIS CODE ON A SMALL AMOUNT OF DATA FIRST!!!!
 for file in glob.glob('/media/nottom/TOSHIBA EXT/2021/Hides/**/*.wav', recursive=True):
-    x = file[62:75]
-    # print(x)
-    if (file[0:46]) == '/media/nottom/TOSHIBA EXT/2021/Hides/BAR5/BAR5':
-        # print(file[46:])
+    print(file[42:55])
+    if (file[0:46]) == '/media/nottom/TOSHIBA EXT/2021/Hides/BAR4/BAR4':
+        print(file[46:])
 
-        # print(file[47:55])
-    if file[62:75] == 'BAR5_20210709':
+#BAR5
+    if file[42:55] == 'BAR5_20210705':
 
-    if file[62:75] == 'BAR5_20210708':
+    if file[42:55] == 'BAR5_20210706':
 
-    if file[62:75] == 'BAR5_20210710'
+    if file[42:55] == 'BAR5_20210707'
 
-    if file[62:75] == 'BAR5_20210706'
+    if file[42:55] == 'BAR5_20210708'
 
-    if file[62:75] == 'AAR1_20210704'
+    if file[42:55] == 'BAR5_20210709':
 
-    if file[62:75] == 'AAR1_20210705'
+    if file[42:55] == 'BAR5_20210710':
 
-    if file[62:75] == 'AAR1_20210706'
+    if file[42:55] == 'BAR5_20210711'
 
-    if file[62:75] == 'AAR1_20210707'
+    if file[42:55] == 'BAR5_20210712'
 
-    if file[62:75] == 'AAR1_20210708'
+#BAR4
 
-    if file[62:75] == 'AAR1_20210709'
+    if file[42:55] == 'BAR4_20210705':
 
-    if file[62:75] == 'AAR1_20210710'
+    if file[42:55] == 'BAR4_20210706':
 
-    if file[62:75] == 'AAR1_20210711'
+    if file[42:55] == 'BAR4_20210707'
 
-    if file[62:75] == 'AAR1_20210712'
-    #
-    if file[62:75] == 'AAR1_20210707'
+    if file[42:55] == 'BAR4_20210708'
 
-    if file[62:75] == 'AAR1_20210708'
+    if file[42:55] == 'BAR4_20210709':
 
-    if file[62:75] == 'AAR1_20210709'
+    if file[42:55] == 'BAR4_20210710':
 
-    if file[62:75] == 'AAR1_20210710'
+    if file[42:55] == 'BAR4_20210711'
 
-    if file[62:75] == 'AAR1_20210711'
+    if file[42:55] == 'BAR4_20210712'
 
-    if file[62:75] == 'AAR1_20210712'
+    if file[42:55] == 'BAR4_20210713'
 
+#BAR3
+
+    if file[42:55] == 'BAR3_20210704':
+
+    if file[42:55] == 'BAR3_20210705':
+
+    if file[42:55] == 'BAR3_20210706':
+
+    if file[42:55] == 'BAR3_20210707'
+
+    if file[42:55] == 'BAR3_20210708'
+
+    if file[42:55] == 'BAR3_20210709':
+
+    if file[42:55] == 'BAR3_20210710':
+
+    if file[42:55] == 'BAR3_20210711'
+
+    if file[42:55] == 'BAR3_20210712'
+
+    if file[42:55] == 'BAR3_20210713'
+
+# BAR2
+
+    if file[42:55] == 'BAR2_20210705':
+
+    if file[42:55] == 'BAR2_20210706':
+
+    if file[42:55] == 'BAR2_20210707'
+
+    if file[42:55] == 'BAR2_20210708'
+
+    if file[42:55] == 'BAR2_20210709':
+
+    if file[42:55] == 'BAR2_20210710':
+
+    if file[42:55] == 'BAR2_20210711'
+
+    if file[42:55] == 'BAR2_20210712'
+
+    if file[42:55] == 'BAR2_20210713'
+
+# BAR1:
+
+    if file[42:55] == 'AAR1_20210704':
+
+    if file[42:55] == 'AAR1_20210705':
+
+    if file[42:55] == 'AAR1_20210706':
+
+    if file[42:55] == 'AAR1_20210707'
+
+    if file[42:55] == 'AAR1_20210708'
+
+    if file[42:55] == 'AAR1_20210709':
+
+    if file[42:55] == 'AAR1_20210710':
+
+    if file[42:55] == 'AAR1_20210711'
+
+    if file[42:55] == 'AAR1_20210712'
 
 #code to move all files into a single directory
 for file in glob.glob('/media/nottom/TOSHIBA EXT/2021/Hides/**/*.wav', recursive=True):
