@@ -22,7 +22,7 @@ from torchmetrics.classification import BinaryRecall
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
-os.chdir('/home/nottom/Documents/LinuxProject/first_model')
+# os.chdir('/home/nottom/Documents/LinuxProject/first_model')
 
 
 # #initiate wandb
@@ -175,19 +175,19 @@ learning_rate = 0.001
 momentum = 0.9
 weight_decay = 0.005
 
-training_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_training.csv',
-    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_training_LATEST')
-train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
-
-valid_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_valid.csv',
-    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_valid')
-valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=False)
+# training_data = FrogLoaderDataset(
+#     annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_training.csv',
+#     img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_training_LATEST')
+# train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+#
+# valid_data = FrogLoaderDataset(
+#     annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_valid.csv',
+#     img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_valid')
+# valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=False)
 
 test_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/first_model/annotations_file_test.csv',
-    img_dir='/home/nottom/Documents/LinuxProject/first_model/img_dir_test')
+    annotations_file='/home/nottom/Documents/miscandfashionmnist/first_model/annotations_file_test.csv',
+    img_dir='/home/nottom/Documents/miscandfashionmnist/first_model/img_dir_test')
 test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
 model = VGG16(num_classes).to(device)
@@ -198,11 +198,11 @@ criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
 
 # evaluate model on test dataset:
-numbers = (4, 6, 8)
+numbers = (4, 5, 6, 7, 8, 9, 10)
 def test(model, device, test_loader):
     for x in numbers:
         model.load_state_dict(
-            torch.load("/home/nottom/Documents/LinuxProject/first_model/second_model_version_epoch_" + str(x) + ".pt"))
+            torch.load("/home/nottom/Documents/miscandfashionmnist/first_model/second_model_version_epoch_" + str(x) + ".pt"))
         # # model.load_state_dict( torch.load("/home/nottom/Documents/LinuxProject/first_model/second_model_version_epoch_4.pt")
         model.eval()
         test_loss = 0
@@ -210,7 +210,7 @@ def test(model, device, test_loader):
         running_accuracy = 0
         running_precision = 0
         running_recall = 0
-        threshold = 0.9
+        threshold = 0.7
         with torch.no_grad():
             for images, labels, filenames in test_loader:
                 images = images.to(device).type(torch.float) / 255
@@ -237,13 +237,13 @@ def test(model, device, test_loader):
                 running_precision += precision
                 running_recall += recall
 
-                # # output filenames, predicted, labels
-                # for data in range(batch_size):
-                #     with open('/home/nottom/Documents/LinuxProject/second_model/output/' + str(filenames[data]) + '.txt',
-                #           'x') as f:
-                #         f.write(str(filenames[data]))
-                #         f.write("," + str(outputs[data])[7:16])
-                #         f.write(str(labels[data])[7:12])
+                # output filenames, predicted, labels
+                for data in range(batch_size):
+                    with open('/home/nottom/Documents/LinuxProject/second_model/output/' + str(filenames[data]) + '.txt',
+                          'x') as f:
+                        f.write(str(filenames[data]))
+                        f.write("," + str(outputs[data])[7:16])
+                        f.write(str(labels[data])[7:12])
 
         print('EPOCH: {}, threshold {}, - TEST SET: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(x,
                                                                                                    threshold,
@@ -255,32 +255,32 @@ def test(model, device, test_loader):
 
 test(model, 'cuda', test_loader)
 #
-# # successfully constructed a csv output!!
-# import os
-# import csv
-# from pathlib import Path
-# import pandas as pd
-# folder = '/home/nottom/Documents/LinuxProject/second_model/output'
-# os.chdir('/home/nottom/Documents/LinuxProject/second_model/output')
-# with open('second_model_predictions.csv', 'w') as out_file:
-#     csv_out = csv.writer(out_file)
-#     column_names = ['filename', 'prediction', 'thresholded', 'label']
-#     writer = csv.DictWriter(out_file, fieldnames=column_names)
-#     writer.writeheader()
-#     # csv_out.writerow(['FileName', 'Content'])
-#     for fileName in Path('.').glob('*.txt'):
-#         # lala = fileName
-#         # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
-#         name = open(str(fileName.absolute())).read()
-#         name = name.replace('[', '')
-#         name = name.replace(']', '')
-#         name = name[:-2]
-#         name_split = name.split(',')
-#         threshold = "," + str(round(float(name_split[1]))) #edit if outputting csv and not using 0.5 as threshold!!!
-#         name += threshold
-#         name_split = name.split(',')
-#         # print(name_split[0][15:23])
-#         # if (name_split[0][15:23]) == "20210723":
-#         csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
-#             # print(name_split[0])
+# successfully constructed a csv output!!
+import os
+import csv
+from pathlib import Path
+import pandas as pd
+folder = '/home/nottom/Documents/LinuxProject/second_model/output'
+os.chdir('/home/nottom/Documents/LinuxProject/second_model/output')
+with open('second_model_predictions.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    column_names = ['filename', 'prediction', 'thresholded', 'label']
+    writer = csv.DictWriter(out_file, fieldnames=column_names)
+    writer.writeheader()
+    # csv_out.writerow(['FileName', 'Content'])
+    for fileName in Path('.').glob('*.txt'):
+        # lala = fileName
+        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
+        name = open(str(fileName.absolute())).read()
+        name = name.replace('[', '')
+        name = name.replace(']', '')
+        name = name[:-2]
+        name_split = name.split(',')
+        threshold = "," + str(round(float(name_split[1]))) #edit if outputting csv and not using 0.5 as threshold!!!
+        name += threshold
+        name_split = name.split(',')
+        # print(name_split[0][15:23])
+        # if (name_split[0][15:23]) == "20210723":
+        csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
+            # print(name_split[0])
 

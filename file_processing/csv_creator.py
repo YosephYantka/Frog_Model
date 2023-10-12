@@ -1,23 +1,48 @@
 #this file is for creating a csv out of the text files in a directory for training
 import os
 import csv
+import glob
 
 #this file will create a csv from all text files
 import os
 import csv
 from pathlib import Path
 
-# THIS IS THE OLD CODE FOR THE BINARY MODEL
-# folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
-# os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
-# with open('annotations_file_training.csv', 'w') as out_file:
-#     csv_out = csv.writer(out_file)
-#     # csv_out.writerow(['FileName', 'Content'])
-#     for file in Path('.').glob('*.txt'):
-#         join_path = os.path.join(folder, file)
-#         reader = open(join_path, 'r')
-#         content = reader.read()
-#         csv_out.writerow([str(file.with_suffix('.png')), open(str(file.absolute())).read().strip()])
+#THIS IS THE OLD CODE FOR THE BINARY MODEL
+folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
+os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training')
+with open('annotations_file_training.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    # csv_out.writerow(['FileName', 'Content'])
+    for file in Path('.').glob('*.txt'):
+        join_path = os.path.join(folder, file)
+        reader = open(join_path, 'r')
+        content = reader.read()
+        csv_out.writerow([str(file.with_suffix('.png')), open(str(file.absolute())).read().strip()])
+
+#this is code for inference for binary model
+folder = '/home/nottom/Documents/inference'
+os.chdir('/home/nottom/Documents/inference')
+with open('annotations_file_binaryinference.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    # csv_out.writerow(['FileName', 'Content'])
+    filelist = []
+    for file in glob.glob('/home/nottom/Documents/inference/test/**/*.wav', recursive=True):
+        print(file)
+        filename = file[82:]
+        print(filename)
+        csv_out.writerow([filename])
+print(filelist)
+
+folder = '/home/nottom/Documents/inference/specgrams'
+with open('annotations_file_binaryinference.csv', 'w') as out_file:
+    csv_out = csv.writer(out_file)
+    for file in os.listdir(folder):
+        csv_out.writerow([file, 0])
+
+
+
+
 
 #THIS IS THE CURRENT CODE FOR THE MULTILABEL MODEL
 folder = '/home/nottom/Documents/LinuxProject/multi_class_model/text_directories/training'
