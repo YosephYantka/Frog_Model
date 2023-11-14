@@ -39,6 +39,14 @@ for file in glob.glob('/home/nottom/Documents/test/**/*.wav', recursive=True):
     if len(file) == 119:
         os.renames(file, file[:-27] + '.wav')
 
+folder = '/media/nottom/TOSHIBA EXT/joseph_dataset/HIDES 2019'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    os.rename(join_path, join_path + '.wav')
+
+
+
+
 #2021
 #todo  CONFIRM WHETHER ALL THE NIGHTS ARE CORRECT!! REMOVE FILES FROM JJ.DATASET THAT AREN'T IN SPREADHSEET
 for file in glob.glob('/media/nottom/TOSHIBA EXT/joseph_dataset/Hides 2021/**/*.wav', recursive=True):

@@ -11,9 +11,24 @@ import os
 from pathlib import Path
 import shutil
 import shutil
+import tqdm
 import PIL
 from random import sample
 import os
+
+#not exactly sure what tis does
+for data in range(1, 20, 3):
+    print(data)
+folder = '/media/nottom/TOSHIBA EXT/training_labels_and_recordings/BG_files_real'
+for file in os.listdir(folder):
+    join_path = os.path.join(folder, file)
+    f = open(join_path, 'r')
+    content = f.read()
+    print(content[19])
+    print(content[69])
+    print(content[121])
+    print(content[173])
+    print(content[225])
 
 #for finding incorrectly labelled text files in label directory :
 folder = '/home/nottom/Documents/LinuxProject/training_data_2009/all_textfiles'
@@ -49,6 +64,7 @@ import shutil
 folder = '/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms' #need this line and below line!!
 files = os.listdir('/home/nottom/Documents/LinuxProject/first_model/test_data/background_spectrograms') #need this!!
 for file in sample(files,4645):
+    print(file)
     path = os.path.join(folder, file)
     os.unlink(path)
 
@@ -100,6 +116,30 @@ for file in os.listdir(folder):
 
 
 
+from random import sample
+# for sorting training data into training, validation, and test
+folder = '/home/nottom/Documents/Training/training_data/6/specgrams' #need this line and below line!! #todo
+files = os.listdir('/home/nottom/Documents/Training/training_data/6/specgrams') #need this!! #todo
+for file in sample(files,121): #todo
+    # join_path = os.path.join(folder, file)
+    # f = open(join_path, 'r')
+    print(file)
+    original = '/home/nottom/Documents/Training/training_data/6/specgrams/' + file #todo
+    destination = '/home/nottom/Documents/Training/training_data/final_directories/img_dir_test/' + file
+    shutil.move(original, destination)
+
+#creates new corresponding text file
+import os
+import PIL
+import shutil
+folder = '/home/nottom/Documents/Training/training_data/final_directories/img_dir_test/'
+for file in os.listdir(folder):
+    if file.endswith('_6_.png'): #todo
+        with open('/home/nottom/Documents/Training/training_data/final_directories/text_dir_test/' + file[:-4] + '.txt', 'x') as f:
+            f.write("0, 0, 0, 0, 0, 0, 1") #todo
+
+
+
 
 
 
@@ -128,6 +168,13 @@ for file in range(1, 218(os.listdir(folder))):
     # if file.endswith('1506__0__20190817_205359_0_.txt'):
     #     shutil.move(original, destination)
     print(file)
+
+
+
+
+
+
+
 
 
 for file in os.listdir(folder):

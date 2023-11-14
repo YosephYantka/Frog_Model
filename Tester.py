@@ -7,6 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.io import read_image
 import pandas as pd
 import os
+import matplotlib as mpl
 import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
@@ -20,10 +21,18 @@ from torchmetrics.classification import BinaryPrecision
 from torchmetrics.classification import BinaryRecall
 
 # Device configuration
+mpl.use("TkAgg")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
+print(mpl.get_backend())
 # os.chdir('/home/nottom/Documents/LinuxProject/first_model')
 
+num_classes = 7
+num_epochs = 10  # I changed this to 11 to solve error at 'for epoch' line
+batch_size = 32
+learning_rate = 0.001
+momentum = 0.9
+weight_decay = 0.005
 
 # #initiate wandb
 # wandb.init(
@@ -52,19 +61,31 @@ class FrogLoaderDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path)
-        label = self.img_labels.iloc[idx, 1]
+        label_0 = self.img_labels.iloc[idx, 1]
+        label_1 = self.img_labels.iloc[idx, 2]
+        label_2 = self.img_labels.iloc[idx, 3]
+        label_3 = self.img_labels.iloc[idx, 4]
+        label_4 = self.img_labels.iloc[idx, 5]
+        label_5 = self.img_labels.iloc[idx, 6]
+        label_6 = self.img_labels.iloc[idx, 7]
         filename = self.img_labels.iloc[idx, 0]
         image = image.to(torch.float32)
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
-            label = self.target_transform(label)
-        return image, label, filename
+            label_0 = self.target_transform(label_0)
+            label_1 = self.target_transform(label_1)
+            label_2 = self.target_transform(label_2)
+            label_3 = self.target_transform(label_3)
+            label_4 = self.target_transform(label_4)
+            label_5 = self.target_transform(label_5)
+            label_6 = self.target_transform(label_6)
+        return image, label_0, label_1, label_2, label_3, label_4, label_5, label_6, filename
 
 
 # borrowed VGG16 model structure
 class VGG16(nn.Module):
-    def __init__(self, num_classes=2):
+    def __init__(self, num_classes=num_classes):
         super(VGG16, self).__init__()
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1),
@@ -168,7 +189,7 @@ def init_weights(m):
 
 # Hyperparameters and weight initialisation
 
-num_classes = 1
+num_classes = 7
 num_epochs = 10  # I changed this to 11 to solve error at 'for epoch' line
 batch_size = 32
 learning_rate = 0.001
@@ -186,9 +207,9 @@ weight_decay = 0.005
 # valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=False)
 
 test_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/miscandfashionmnist/first_model/annotations_file_test.csv',
-    img_dir='/home/nottom/Documents/miscandfashionmnist/first_model/img_dir_test')
-test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+    annotations_file='/home/nottom/Documents/LinuxProject/multi_class_model/annotations_file_test_multi.csv',
+    img_dir='/home/nottom/Documents/LinuxProject/multi_class_model/img_dir_test',)
+test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, drop_last=True) #remember to change drop_last if I need to!!
 
 model = VGG16(num_classes).to(device)
 model = model.apply(init_weights)
@@ -197,12 +218,15 @@ model = model.apply(init_weights)
 criterion = nn.BCELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, weight_decay=weight_decay, momentum=momentum)
 
+from torch import rand, randint
+from torchmetrics.classification import MultilabelPrecisionRecallCurve
 # evaluate model on test dataset:
-numbers = (4, 5, 6, 7, 8, 9, 10)
+# numbers = (4, 5, 6, 7, 8, 9, 10)
 def test(model, device, test_loader):
-    for x in numbers:
+    # threshold_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    # for threshold in threshold_list:
         model.load_state_dict(
-            torch.load("/home/nottom/Documents/miscandfashionmnist/first_model/second_model_version_epoch_" + str(x) + ".pt"))
+            torch.load("/home/nottom/Documents/LinuxProject/multi_class_model/multiclass_model.pt"))
         # # model.load_state_dict( torch.load("/home/nottom/Documents/LinuxProject/first_model/second_model_version_epoch_4.pt")
         model.eval()
         test_loss = 0
@@ -210,19 +234,37 @@ def test(model, device, test_loader):
         running_accuracy = 0
         running_precision = 0
         running_recall = 0
-        threshold = 0.7
+        threshold = 0.9
+        long_outputs = torch.empty(0,7).to(device)
+        long_labels = torch.empty(0,7).to(device)
         with torch.no_grad():
-            for images, labels, filenames in test_loader:
+            for i, (images, labels_0, labels_1, labels_2, labels_3, labels_4, labels_5, labels_6, filenames) in enumerate(test_loader):
+                # Move tensors to the configured device
                 images = images.to(device).type(torch.float) / 255
-                labels = labels.type(torch.float).to(device)
-                labels[
-                    labels == 1] = 0  # THESE TWO LINES OF CODE CONVERT THE 1 AND 2 LABELS TO 0 AND 1 FOR THIS BINARY CLASSIFIER
-                labels[labels == 2] = 1
-                labels = labels[:, None]
+                labels_0 = labels_0.type(torch.float).to(device)
+                labels_1 = labels_1.type(torch.float).to(device)
+                labels_2 = labels_2.type(torch.float).to(device)
+                labels_3 = labels_3.type(torch.float).to(device)
+                labels_4 = labels_4.type(torch.float).to(device)
+                labels_5 = labels_5.type(torch.float).to(device)
+                labels_6 = labels_6.type(torch.float).to(device)
+                labels_0 = labels_0[:, None]
+                labels_1 = labels_1[:, None]
+                labels_2 = labels_2[:, None]
+                labels_3 = labels_3[:, None]
+                labels_4 = labels_4[:, None]
+                labels_5 = labels_5[:, None]
+                labels_6 = labels_6[:, None]  # removing this makes it fail
 
                 # forward pass
+                labels = torch.cat((labels_0, labels_1, labels_2, labels_3, labels_4, labels_5, labels_6), -1)
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)
+                rounded_outputs = torch.round(outputs)
+
+                #precision-recall curve
+                long_outputs = torch.cat((long_outputs, outputs), 0).to(device)
+                long_labels = torch.cat((long_labels, labels), 0).to(device)
 
                 # torch metrics
                 metric1 = BinaryAccuracy(threshold=threshold).to(device)
@@ -231,56 +273,82 @@ def test(model, device, test_loader):
                 precision = metric2(outputs, labels)
                 metric3 = BinaryRecall(threshold=threshold).to(device)
                 recall = metric3(outputs, labels)
-
                 loss = criterion(outputs, labels)
                 running_accuracy += accuracy
                 running_precision += precision
                 running_recall += recall
 
-                # output filenames, predicted, labels
-                for data in range(batch_size):
-                    with open('/home/nottom/Documents/LinuxProject/second_model/output/' + str(filenames[data]) + '.txt',
-                          'x') as f:
-                        f.write(str(filenames[data]))
-                        f.write("," + str(outputs[data])[7:16])
-                        f.write(str(labels[data])[7:12])
+                # # # output filenames, predicted, labels
+                # for data in range(batch_size):
+                #     with open('/home/nottom/Documents/LinuxProject/multi_class_model/output/' + str(filenames[data]) + '.txt',
+                #           'x') as f:
+                #         f.write(str(filenames[data]))
+                #         stroutputs = str(rounded_outputs[data])
+                #         f.write("," + stroutputs[8] + ',' + stroutputs[12] + ',' + stroutputs[16] + ',' + stroutputs[20]
+                #                 + ',' + stroutputs[24] + ',' + stroutputs[28] + ',' + stroutputs[32])
+                #         strlabels = str(labels[data])
+                #         f.write("," + strlabels[8]+ "," + strlabels[12] + "," + strlabels[16] + "," + strlabels[20] +
+                #                 "," + strlabels[24] + "," + strlabels[28] + "," + strlabels[32])
 
-        print('EPOCH: {}, threshold {}, - TEST SET: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(x,
+            print('threshold {}, - TEST SET: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(
                                                                                                    threshold,
-                                                                                                   running_accuracy / 100,
+                                                                                                   running_accuracy / 30,
                                                                                                    loss.item(),
-                                                                                                   running_precision / 100,
-                                                                                                   running_recall / 100))
+                                                                                                   running_precision / 30,
+                                                                                                   running_recall / 30))
+            long_labels = long_labels.type(torch.LongTensor).to(device)
+            # long_outputs = long_outputs.type(torch.LongTensor).to(device)
+            metric = MultilabelPrecisionRecallCurve(num_labels=7, thresholds=None).to(device)
+            # precision, recall, thresholds = mlprc(long_outputs, long_labels)
+            metric.update(long_outputs, long_labels)
+            mpl.pyplot.show()
+            fig_, ax_ = metric.plot(score=True)
 
 
 test(model, 'cuda', test_loader)
-#
-# successfully constructed a csv output!!
-import os
-import csv
-from pathlib import Path
-import pandas as pd
-folder = '/home/nottom/Documents/LinuxProject/second_model/output'
-os.chdir('/home/nottom/Documents/LinuxProject/second_model/output')
-with open('second_model_predictions.csv', 'w') as out_file:
-    csv_out = csv.writer(out_file)
-    column_names = ['filename', 'prediction', 'thresholded', 'label']
-    writer = csv.DictWriter(out_file, fieldnames=column_names)
-    writer.writeheader()
-    # csv_out.writerow(['FileName', 'Content'])
-    for fileName in Path('.').glob('*.txt'):
-        # lala = fileName
-        # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
-        name = open(str(fileName.absolute())).read()
-        name = name.replace('[', '')
-        name = name.replace(']', '')
-        name = name[:-2]
-        name_split = name.split(',')
-        threshold = "," + str(round(float(name_split[1]))) #edit if outputting csv and not using 0.5 as threshold!!!
-        name += threshold
-        name_split = name.split(',')
-        # print(name_split[0][15:23])
-        # if (name_split[0][15:23]) == "20210723":
-        csv_out.writerow([name_split[0], name_split[1], name_split[3], name_split[2]])
-            # print(name_split[0])
 
+
+
+#precision-recall curve:
+
+
+
+
+
+# # successfully constructed a csv output!!
+# import os
+# import csv
+# from pathlib import Path
+# import pandas as pd
+# folder = '/home/nottom/Documents/LinuxProject/multi_class_model/output'
+# os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model/output')
+# with open('multiclass_model_predictions.csv', 'w') as out_file:
+#     csv_out = csv.writer(out_file)
+#     column_names = ['filename', 'prediction_0', 'label_0',
+#                                 'prediction_1', 'label_1',
+#                                 'prediction_2', 'label_2',
+#                                 'prediction_3', 'label_3',
+#                                 'prediction_4', 'label_4',
+#                                 'prediction_5', 'label_5',
+#                                 'prediction_6',' label_6']
+#     writer = csv.DictWriter(out_file, fieldnames=column_names)
+#     writer.writeheader()
+#     # csv_out.writerow(['FileName', 'Content'])
+#     for fileName in Path('.').glob('*.txt'):
+#         # lala = fileName
+#         # csv_out.writerow([str(fileName) + ',png',open(str(fileName.absolute())).read().strip()])
+#         name = open(str(fileName.absolute())).read()
+#         # name = name.replace('[', '')
+#         # name = name.replace(']', '')
+#         # name = name[:-2]
+#         name_split = name.split(',')
+#         # print(name_split)
+#         # threshold = "," + str(round(float(name_split[1]))) #edit if outputting csv and not using 0.5 as threshold!!!
+#         # name += threshold
+#         # print(name_split[0][15:23])
+#         # if (name_split[0][15:23]) == "20210723":
+#         csv_out.writerow([name_split[0], name_split[1], name_split[8], name_split[2], name_split[9], name_split[3]
+#                           , name_split[10], name_split[4], name_split[11], name_split[5], name_split[12], name_split[6]
+#                           , name_split[13], name_split[7], name_split[14]])
+#             # print(name_split[0])
+#

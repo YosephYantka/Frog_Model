@@ -25,19 +25,17 @@ print(device)
 os.chdir('/home/nottom/Documents/LinuxProject/multi_class_model')
 
 # initiate wandb
-# wandb.init(
-#     # set the wandb project where this run will be logged
-#     project="multiclass_model",
-#     # track hyperparameters and run metadata
-#     config={
-#         "learning_rate": 0.001,
-#         "architecture": "CNN",
-#         "dataset": "notata_background",
-#         "epochs": 10,
-#     }
-# )
-
-
+wandb.init(
+    # set the wandb project where this run will be logged
+    project="multiclass_model",
+    # track hyperparameters and run metadata
+    config={
+        "learning_rate": 0.001,
+        "architecture": "CNN",
+        "dataset": "multi-class",
+        "epochs": 20,
+    }
+)
 # The dataloader:
 class FrogLoaderDataset(Dataset):
     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
@@ -181,19 +179,19 @@ def init_weights(m):
 # Hyperparameters and weight initialisation
 
 num_classes = 7
-num_epochs = 10  # I changed this to 11 to solve error at 'for epoch' line
+num_epochs = 20  # I changed this to 11 to solve error at 'for epoch' line
 batch_size = 32
 learning_rate = 0.001
 momentum = 0.9
 weight_decay = 0.005
 
 training_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/multi_class_model/annotations_file_training.csv',
+    annotations_file='/home/nottom/Documents/LinuxProject/multi_class_model/annotations_file_training_multi.csv',
     img_dir='/home/nottom/Documents/LinuxProject/multi_class_model/img_dir_training')
 train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
 
 valid_data = FrogLoaderDataset(
-    annotations_file='/home/nottom/Documents/LinuxProject/multi_class_model/annotations_file_valid.csv',
+    annotations_file='/home/nottom/Documents/LinuxProject/multi_class_model/annotations_file_valid_multi.csv',
     img_dir='/home/nottom/Documents/LinuxProject/multi_class_model/img_dir_valid')
 valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=False)
 
@@ -214,14 +212,15 @@ def checkpoint(model, filename):
 
 # Training the model:
 total_step = len(train_loader)
-# offset = random.random() / 5  # wandbstuff
+offset = random.random() / 5  # wandbstuff
 
 for epoch in tqdm(range(1, num_epochs + 1), desc='epochs',
                   unit='epoch '):  # changed range to solve "division by zero error in line below)
     counter = 0
-    # acc = 1 - 2 ** -epoch - random.random() / epoch - offset  # wandb stuff
-    # loss = 2 ** -epoch + random.random() / epoch + offset  # wandb stuff
-    # wandb.log({"acc": acc, "loss": loss})  # wandb stuff
+    acc = 1 - 2 ** -epoch - random.random() / epoch - offset  # wandb stuff
+    loss = 2 ** -epoch + random.random() / epoch + offset  # wandb stuff
+    wandb.log({"acc": acc, "loss": loss})  # wandb stuff
+    model.train()
     for i, (images, labels_0, labels_1, labels_2, labels_3, labels_4, labels_5, labels_6, filenames) in enumerate(train_loader):
         # Move tensors to the configured device
         images = images.to(device).type(torch.float) / 255
@@ -260,6 +259,7 @@ for epoch in tqdm(range(1, num_epochs + 1), desc='epochs',
         running_accuracy = 0
         running_precision = 0
         running_recall = 0
+        threshold = 0.5
         for images, labels_0, labels_1, labels_2, labels_3, labels_4, labels_5, labels_6, filenames in valid_loader:
             images = images.to(device).type(torch.float) / 255
             labels_0 = labels_0.type(torch.float).to(device)
@@ -283,21 +283,21 @@ for epoch in tqdm(range(1, num_epochs + 1), desc='epochs',
             _, predicted = torch.max(outputs.data, 1)
 
             # torch metrics
-            metric1 = BinaryAccuracy(threshold=0.5).to(device)
+            metric1 = BinaryAccuracy(threshold=threshold).to(device)
             accuracy = metric1(outputs, labels)
-            metric2 = BinaryPrecision(threshold=0.5).to(device)
+            metric2 = BinaryPrecision(threshold=threshold).to(device)
             precision = metric2(outputs, labels)
-            metric3 = BinaryRecall(threshold=0.5).to(device)
+            metric3 = BinaryRecall(threshold=threshold).to(device)
             recall = metric3(outputs, labels)
             loss = criterion(outputs, labels)
             running_accuracy += accuracy
             running_precision += precision
             running_recall += recall
         print('VALIDATION: Accuracy: {}, Loss: {:.4f}, Precision: {}, Recall: {}'.format(
-            running_accuracy / 171, loss.item(), running_precision / 171, running_recall / 171, ))
-        # checkpoint(model, f"second_model_version_epoch {epoch}.pt")
+            running_accuracy / 30, loss.item(), running_precision / 30, running_recall / 30, ))
+        checkpoint(model, f"multiclass_model_version_epoch {epoch}.pt")
 
-# torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/second_model/second_model.pt")
+torch.save(model.state_dict(), "/home/nottom/Documents/LinuxProject/multi_class_model/multiclass_model.pt")
 
 # # evaluate model on test dataset:
 # def test(model, device, test_loader):

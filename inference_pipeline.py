@@ -1,6 +1,5 @@
 # this code is for feeding project data through to the model
 import csv
-
 import torch
 import torchaudio
 import torchaudio.functional as F
@@ -176,12 +175,12 @@ class SplitWavAudioMubin():
             #     # print('All splited successfully')
 def inference(model, device, inference_loader):
     model.load_state_dict(torch.load(
-        "/home/nottom/Documents/miscandfashionmnist/first_model/second_model_version_epoch_8.pt"))
+        "/home/nottom/Documents/LinuxProject/multi_class_model/multiclass_model.pt"))
     model.eval()
     with torch.no_grad():
         with open(chunk_file_raw + '_predictions.csv', 'w') as out_file:
-            csv_out = csv.writer(out_file)
-            column_names = ['filename', 'prediction', 'thresholded']
+            column_names = ['filename', 'prediction_0', 'prediction_1', 'prediction_2', 'prediction_3', 'prediction_4'
+                            , 'prediction_5', 'prediction_6']
             writer = csv.DictWriter(out_file, fieldnames=column_names)
             writer.writeheader()
             for images, labels, filenames in inference_loader:
@@ -194,13 +193,42 @@ def inference(model, device, inference_loader):
                 # output a csv with filenames, predictions, thresholded predictions, elevation, distance, year
                 for data in range(batch_size):
                     csv_out = csv.writer(out_file)
-                    column_names = ['filename', 'prediction', 'thresholded']
-                    writer = csv.DictWriter(out_file, fieldnames=column_names)
-                    if outputs[data] > 0.9:
-                        thresholded = 1
+                    if outputs[data][0] > 0.9:
+                        thresholded_0 = 1
                     else:
-                        thresholded = 0
-                    csv_out.writerow([str(filenames[data]), outputs[data], thresholded])
+                        thresholded_0 = 0
+
+                    if outputs[data][1] > 0.9:
+                        thresholded_1 = 1
+                    else:
+                        thresholded_1 = 0
+
+                    if outputs[data][2] > 0.9:
+                        thresholded_2 = 1
+                    else:
+                        thresholded_2 = 0
+
+                    if outputs[data][3] > 0.9:
+                        thresholded_3 = 1
+                    else:
+                        thresholded_3 = 0
+
+                    if outputs[data][4] > 0.9:
+                        thresholded_4 = 1
+                    else:
+                        thresholded_4 = 0
+
+                    if outputs[data][5] > 0.9:
+                        thresholded_5 = 1
+                    else:
+                        thresholded_5 = 0
+
+                    if outputs[data][6] > 0.9:
+                        thresholded_6 = 1
+                    else:
+                        thresholded_6 = 0
+                    csv_out.writerow([str(filenames[data]), thresholded_0, thresholded_1, thresholded_2
+                                      , thresholded_3, thresholded_4, thresholded_5, thresholded_6])
 def init_weights(m):
     if isinstance(m, nn.Linear) or isinstance(m, nn.Conv2d):
         torch.nn.init.xavier_uniform_(m.weight)
@@ -208,7 +236,7 @@ def init_weights(m):
 
 
 # set params
-num_classes = 1
+num_classes = 7
 batch_size = 32
 learning_rate = 0.001
 momentum = 0.9
@@ -221,7 +249,7 @@ model = model.apply(init_weights)
 for file in glob.glob('/media/nottom/TOSHIBA EXT/joseph_dataset/**/*.wav', recursive=True):
     os.chdir('/home/nottom/Documents/inference')
     chunk_file_raw = file[-30:]
-    print(chunk_file_raw)
+    print("next file: " + chunk_file_raw)
     chunk_folder = '/home/nottom/Documents/inference/chunks'
 
     # move recording to chunks folder:
@@ -285,6 +313,7 @@ for file in glob.glob('/media/nottom/TOSHIBA EXT/joseph_dataset/**/*.wav', recur
     # convert to greyscale
     folder = '/home/nottom/Documents/inference/specgrams_raw'
     for file in os.listdir(folder):
+        # print(file)
         join_path = os.path.join(folder, file)
         image = PIL.Image.open(join_path).convert("L")
         image.save('/home/nottom/Documents/inference/specgrams/' + file)
@@ -305,6 +334,7 @@ for file in glob.glob('/media/nottom/TOSHIBA EXT/joseph_dataset/**/*.wav', recur
 
     inference(model, 'cuda', inference_loader)
 
+    import os
     folder = '/home/nottom/Documents/inference/chunks'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
